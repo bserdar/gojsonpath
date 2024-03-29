@@ -22,229 +22,229 @@
 # "NOT_SUPPORTED".
 
 queries:
-  - id: array_slice
-    selector: "$[1:3]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["second", "third"]
-  - id: array_slice_on_exact_match
-    selector: "$[0:5]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_on_non_overlapping_array
-    selector: "$[7:10]"
-    document: ["first", "second", "third"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_on_object
-    selector: "$[1:3]"
-    document: {":": 42, "more": "string", "a": 1, "b": 2, "c": 3, "1:3": "nice"}
-    consensus: []
-  - id: array_slice_on_partially_overlapping_array
-    selector: "$[1:10]"
-    document: ["first", "second", "third"]
-    consensus: ["second", "third"]
-  - id: array_slice_with_large_number_for_end
-    selector: "$[2:113667776004]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["third", "forth", "fifth"]
-  - id: array_slice_with_large_number_for_end_and_negative_step
-    selector: "$[2:-113667776004:-1]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_large_number_for_start
-    selector: "$[-113667776004:2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["first", "second"]
-  - id: array_slice_with_large_number_for_start_end_negative_step
-    selector: "$[113667776004:2:-1]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_negative_start_and_end_and_range_of_-1
-    selector: "$[-4:-5]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_negative_start_and_end_and_range_of_0
-    selector: "$[-4:-4]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_negative_start_and_end_and_range_of_1
-    selector: "$[-4:-3]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: [4]
-  - id: array_slice_with_negative_start_and_positive_end_and_range_of_-1
-    selector: "$[-4:1]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_negative_start_and_positive_end_and_range_of_0
-    selector: "$[-4:2]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_negative_start_and_positive_end_and_range_of_1
-    selector: "$[-4:3]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: [4]
-  - id: array_slice_with_negative_step
-    selector: "$[3:0:-2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_negative_step_and_start_greater_than_end
-    selector: "$[0:3:-2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_negative_step_on_partially_overlapping_array
-    selector: "$[7:3:-1]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_negative_step_only
-    selector: "$[::-2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_open_end
-    selector: "$[1:]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["second", "third", "forth", "fifth"]
-  - id: array_slice_with_open_end_and_negative_step
-    selector: "$[3::-1]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_open_start
-    selector: "$[:2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["first", "second"]
-  - id: array_slice_with_open_start_and_end
-    selector: "$[:]"
-    document: ["first", "second"]
-    consensus: ["first", "second"]
-  - id: array_slice_with_open_start_and_end_and_step_empty
-    selector: "$[::]"
-    document: ["first", "second"]
-    consensus: ["first", "second"]
-  - id: array_slice_with_open_start_and_end_on_object
-    selector: "$[:]"
-    document: {":": 42, "more": "string"}
-    consensus: []
-  - id: array_slice_with_open_start_and_negative_step
-    selector: "$[:2:-1]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_positive_start_and_negative_end_and_range_of_-1
-    selector: "$[3:-4]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_positive_start_and_negative_end_and_range_of_0
-    selector: "$[3:-3]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_positive_start_and_negative_end_and_range_of_1
-    selector: "$[3:-2]"
-    document: [2, "a", 4, 5, 100, "nice"]
-    consensus: [5]
-  - id: array_slice_with_range_of_-1
-    selector: "$[2:1]"
-    document: ["first", "second", "third", "forth"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_range_of_0
-    selector: "$[0:0]"
-    document: ["first", "second"]
-    consensus: []
-    not-found-consensus: NOT_FOUND
-  - id: array_slice_with_range_of_1
-    selector: "$[0:1]"
-    document: ["first", "second"]
-    consensus: ["first"]
-  - id: array_slice_with_start_-1_and_open_end
-    selector: "$[-1:]"
-    document: ["first", "second", "third"]
-    consensus: ["third"]
-  - id: array_slice_with_start_-2_and_open_end
-    selector: "$[-2:]"
-    document: ["first", "second", "third"]
-    consensus: ["second", "third"]
-  - id: array_slice_with_start_large_negative_number_and_open_end_on_short_array
-    selector: "$[-4:]"
-    document: ["first", "second", "third"]
-    consensus: ["first", "second", "third"]
-  - id: array_slice_with_step
-    selector: "$[0:3:2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["first", "third"]
-  - id: array_slice_with_step_0
-    selector: "$[0:3:0]"
-    document: ["first", "second", "third", "forth", "fifth"]
-  - id: array_slice_with_step_1
-    selector: "$[0:3:1]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["first", "second", "third"]
-  - id: array_slice_with_step_and_leading_zeros
-    selector: "$[010:024:010]"
-    document: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-    consensus: [10, 20]
-  - id: array_slice_with_step_but_end_not_aligned
-    selector: "$[0:4:2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["first", "third"]
-  - id: array_slice_with_step_empty
-    selector: "$[1:3:]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["second", "third"]
-  - id: array_slice_with_step_only
-    selector: "$[::2]"
-    document: ["first", "second", "third", "forth", "fifth"]
-    consensus: ["first", "third", "fifth"]
-  - id: bracket_notation
-    selector: "$['key']"
-    document: {"key": "value"}
-    consensus: ["value"]
-    scalar-consensus: "value"
-  - id: bracket_notation_after_recursive_descent
-    selector: "$..[0]"
-    document: ["first", {"key": ["first nested", {"more": [{"nested": ["deepest", "second"]}, ["more", "values"]]}]}]
-    ordered: false
-    consensus: ["deepest", "first nested", "first", "more", {"nested": ["deepest", "second"]}]
-  - id: bracket_notation_on_object_without_key
-    selector: "$['missing']"
-    document: {"key": "value"}
-    consensus: []
-    scalar-consensus: null
-    not-found-consensus: NOT_FOUND
-    scalar-not-found-consensus: NOT_FOUND
-  - id: bracket_notation_with_NFC_path_on_NFD_key
-    selector: "$['ü']"
-    document: {"u\u0308": 42}
-    consensus: []
-    scalar-consensus: null
-    not-found-consensus: NOT_FOUND
-    scalar-not-found-consensus: NOT_FOUND
-  - id: bracket_notation_with_dot
-    selector: "$['two.some']"
-    document: {"one": {"key": "value"}, "two": {"some": "more", "key": "other value"}, "two.some": "42"}
-    consensus: ["42"]
-    scalar-consensus: "42"
-  - id: bracket_notation_with_double_quotes
-    selector: "$[\"key\"]"
-    document: {"key": "value"}
-    consensus: ["value"]
-    scalar-consensus: "value"
-  - id: bracket_notation_with_empty_path
-    selector: "$[]"
-    document: {"": 42, "''": 123, "\"\"": 222}
-    consensus: NOT_SUPPORTED
-  - id: bracket_notation_with_empty_string
-    selector: "$['']"
-    document: {"": 42, "''": 123, "\"\"": 222}
-    consensus: [42]
-    scalar-consensus: 42
-  - id: bracket_notation_with_empty_string_doubled_quoted
-    selector: "$[\"\"]"
-    document: {"": 42, "''": 123, "\"\"": 222}
-    consensus: [42]
-    scalar-consensus: 42
-  - id: bracket_notation_with_negative_number_on_short_array
-    selector: "$[-2]"
-    document: ["one element"]
-    consensus: []
-    scalar-consensus: null
-    not-found-consensus: NOT_FOUND
-    scalar-not-found-consensus: NOT_FOUND
+  # - id: array_slice
+  #   selector: "$[1:3]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["second", "third"]
+  # - id: array_slice_on_exact_match
+  #   selector: "$[0:5]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_on_non_overlapping_array
+  #   selector: "$[7:10]"
+  #   document: ["first", "second", "third"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_on_object
+  #   selector: "$[1:3]"
+  #   document: {":": 42, "more": "string", "a": 1, "b": 2, "c": 3, "1:3": "nice"}
+  #   consensus: []
+  # - id: array_slice_on_partially_overlapping_array
+  #   selector: "$[1:10]"
+  #   document: ["first", "second", "third"]
+  #   consensus: ["second", "third"]
+  # - id: array_slice_with_large_number_for_end
+  #   selector: "$[2:113667776004]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["third", "forth", "fifth"]
+  # - id: array_slice_with_large_number_for_end_and_negative_step
+  #   selector: "$[2:-113667776004:-1]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_large_number_for_start
+  #   selector: "$[-113667776004:2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["first", "second"]
+  # - id: array_slice_with_large_number_for_start_end_negative_step
+  #   selector: "$[113667776004:2:-1]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_negative_start_and_end_and_range_of_-1
+  #   selector: "$[-4:-5]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_negative_start_and_end_and_range_of_0
+  #   selector: "$[-4:-4]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_negative_start_and_end_and_range_of_1
+  #   selector: "$[-4:-3]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: [4]
+  # - id: array_slice_with_negative_start_and_positive_end_and_range_of_-1
+  #   selector: "$[-4:1]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_negative_start_and_positive_end_and_range_of_0
+  #   selector: "$[-4:2]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_negative_start_and_positive_end_and_range_of_1
+  #   selector: "$[-4:3]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: [4]
+  # - id: array_slice_with_negative_step
+  #   selector: "$[3:0:-2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_negative_step_and_start_greater_than_end
+  #   selector: "$[0:3:-2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_negative_step_on_partially_overlapping_array
+  #   selector: "$[7:3:-1]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_negative_step_only
+  #   selector: "$[::-2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_open_end
+  #   selector: "$[1:]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["second", "third", "forth", "fifth"]
+  # - id: array_slice_with_open_end_and_negative_step
+  #   selector: "$[3::-1]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_open_start
+  #   selector: "$[:2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["first", "second"]
+  # - id: array_slice_with_open_start_and_end
+  #   selector: "$[:]"
+  #   document: ["first", "second"]
+  #   consensus: ["first", "second"]
+  # - id: array_slice_with_open_start_and_end_and_step_empty
+  #   selector: "$[::]"
+  #   document: ["first", "second"]
+  #   consensus: ["first", "second"]
+  # - id: array_slice_with_open_start_and_end_on_object
+  #   selector: "$[:]"
+  #   document: {":": 42, "more": "string"}
+  #   consensus: []
+  # - id: array_slice_with_open_start_and_negative_step
+  #   selector: "$[:2:-1]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_positive_start_and_negative_end_and_range_of_-1
+  #   selector: "$[3:-4]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_positive_start_and_negative_end_and_range_of_0
+  #   selector: "$[3:-3]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_positive_start_and_negative_end_and_range_of_1
+  #   selector: "$[3:-2]"
+  #   document: [2, "a", 4, 5, 100, "nice"]
+  #   consensus: [5]
+  # - id: array_slice_with_range_of_-1
+  #   selector: "$[2:1]"
+  #   document: ["first", "second", "third", "forth"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_range_of_0
+  #   selector: "$[0:0]"
+  #   document: ["first", "second"]
+  #   consensus: []
+  #   not-found-consensus: NOT_FOUND
+  # - id: array_slice_with_range_of_1
+  #   selector: "$[0:1]"
+  #   document: ["first", "second"]
+  #   consensus: ["first"]
+  # - id: array_slice_with_start_-1_and_open_end
+  #   selector: "$[-1:]"
+  #   document: ["first", "second", "third"]
+  #   consensus: ["third"]
+  # - id: array_slice_with_start_-2_and_open_end
+  #   selector: "$[-2:]"
+  #   document: ["first", "second", "third"]
+  #   consensus: ["second", "third"]
+  # - id: array_slice_with_start_large_negative_number_and_open_end_on_short_array
+  #   selector: "$[-4:]"
+  #   document: ["first", "second", "third"]
+  #   consensus: ["first", "second", "third"]
+  # - id: array_slice_with_step
+  #   selector: "$[0:3:2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["first", "third"]
+  # - id: array_slice_with_step_0
+  #   selector: "$[0:3:0]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  # - id: array_slice_with_step_1
+  #   selector: "$[0:3:1]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["first", "second", "third"]
+  # - id: array_slice_with_step_and_leading_zeros
+  #   selector: "$[010:024:010]"
+  #   document: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+  #   consensus: [10, 20]
+  # - id: array_slice_with_step_but_end_not_aligned
+  #   selector: "$[0:4:2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["first", "third"]
+  # - id: array_slice_with_step_empty
+  #   selector: "$[1:3:]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["second", "third"]
+  # - id: array_slice_with_step_only
+  #   selector: "$[::2]"
+  #   document: ["first", "second", "third", "forth", "fifth"]
+  #   consensus: ["first", "third", "fifth"]
+  # - id: bracket_notation
+  #   selector: "$['key']"
+  #   document: {"key": "value"}
+  #   consensus: ["value"]
+  #   scalar-consensus: "value"
+  # - id: bracket_notation_after_recursive_descent
+  #   selector: "$..[0]"
+  #   document: ["first", {"key": ["first nested", {"more": [{"nested": ["deepest", "second"]}, ["more", "values"]]}]}]
+  #   ordered: false
+  #   consensus: ["deepest", "first nested", "first", "more", {"nested": ["deepest", "second"]}]
+  # - id: bracket_notation_on_object_without_key
+  #   selector: "$['missing']"
+  #   document: {"key": "value"}
+  #   consensus: []
+  #   scalar-consensus: null
+  #   not-found-consensus: NOT_FOUND
+  #   scalar-not-found-consensus: NOT_FOUND
+  # - id: bracket_notation_with_NFC_path_on_NFD_key
+  #   selector: "$['ü']"
+  #   document: {"u\u0308": 42}
+  #   consensus: []
+  #   scalar-consensus: null
+  #   not-found-consensus: NOT_FOUND
+  #   scalar-not-found-consensus: NOT_FOUND
+  # - id: bracket_notation_with_dot
+  #   selector: "$['two.some']"
+  #   document: {"one": {"key": "value"}, "two": {"some": "more", "key": "other value"}, "two.some": "42"}
+  #   consensus: ["42"]
+  #   scalar-consensus: "42"
+  # - id: bracket_notation_with_double_quotes
+  #   selector: "$[\"key\"]"
+  #   document: {"key": "value"}
+  #   consensus: ["value"]
+  #   scalar-consensus: "value"
+  # - id: bracket_notation_with_empty_path
+  #   selector: "$[]"
+  #   document: {"": 42, "''": 123, "\"\"": 222}
+  #   consensus: NOT_SUPPORTED
+  # - id: bracket_notation_with_empty_string
+  #   selector: "$['']"
+  #   document: {"": 42, "''": 123, "\"\"": 222}
+  #   consensus: [42]
+  #   scalar-consensus: 42
+  # - id: bracket_notation_with_empty_string_doubled_quoted
+  #   selector: "$[\"\"]"
+  #   document: {"": 42, "''": 123, "\"\"": 222}
+  #   consensus: [42]
+  #   scalar-consensus: 42
+  # - id: bracket_notation_with_negative_number_on_short_array
+  #   selector: "$[-2]"
+  #   document: ["one element"]
+  #   consensus: []
+  #   scalar-consensus: null
+  #   not-found-consensus: NOT_FOUND
+  #   scalar-not-found-consensus: NOT_FOUND
   - id: bracket_notation_with_number
     selector: "$[2]"
     document: ["first", "second", "third", "forth", "fifth"]

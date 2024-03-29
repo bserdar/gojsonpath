@@ -123,7 +123,48 @@ func astSelector(ctx *parser.SelectorContext, path *Path) error {
 
 func astNestedSelector(ctx *parser.SelectorContext) (selector, error) {
 	if expr := ctx.SingleExpression(); expr != nil {
-		return nil, nil
+		switch e := expr.(type) {
+		case *parser.LiteralExpressionContext:
+			lit := e.Literal().(*parser.LiteralContext)
+			if l := lit.StringLiteral(); l != nil {
+				return &keySelector{key: unescapeString(l.GetText())}, nil
+			}
+			return &keySelector{
+				key:  lit.GetText(),
+				expr: astLiteral(lit),
+			}, nil
+
+		case *parser.IdentifierExpressionContext,
+			*parser.ArrayLiteralExpressionContext,
+			*parser.ObjectLiteralExpressionContext,
+			*parser.ChainExpressionContext,
+			*parser.MemberIndexExpressionContext,
+			*parser.ArgumentsExpressionContext,
+			*parser.UnaryPlusExpressionContext,
+			*parser.UnaryMinusExpressionContext,
+			*parser.BitNotExpressionContext,
+			*parser.NotExpressionContext,
+			*parser.PowerExpressionContext,
+			*parser.MultiplicativeExpressionContext,
+			*parser.AdditiveExpressionContext,
+			*parser.CoalesceExpressionContext,
+			*parser.RelationalExpressionContext,
+			*parser.InExpressionContext,
+			*parser.EqualityExpressionContext,
+			*parser.BitAndExpressionContext,
+			*parser.BitXOrExpressionContext,
+			*parser.BitOrExpressionContext,
+			*parser.LogicalAndExpressionContext,
+			*parser.LogicalOrExpressionContext,
+			*parser.TernaryExpressionContext,
+			*parser.ParenthesizedExpressionContext:
+			return &keySelector{key: expr.GetText()}, nil
+
+		case *parser.PathExpressionContext:
+		case *parser.FilterExpressionContext:
+
+		}
+		return nil, ErrSyntax(fmt.Sprintf("Unrecognized selector: %s", expr.GetText()))
 	}
 	for _, ch := range ctx.GetChildren() {
 		if tok, ok := ch.(antlr.TerminalNode); ok {
@@ -143,7 +184,7 @@ func astSlice(ctx *parser.SliceContext) (selector, error) {
 			if tok.GetText() == ":" {
 				index++
 			}
-		} else if expr, ok := ch.(*parser.SingleExpressionContext); ok {
+		} else if expr, ok := ch.(parser.ISingleExpressionContext); ok {
 			var err error
 			expressions[index], err = astSingleExpression(expr)
 			if err != nil {
@@ -151,13 +192,26 @@ func astSlice(ctx *parser.SliceContext) (selector, error) {
 			}
 		}
 	}
+	switch index {
+	case 0:
+		return &indexSelector{
+			index: expressions[0],
+		}, nil
+	case 1:
+		return &rangeSelector{
+			start: expressions[0],
+			end:   expressions[1],
+		}, nil
+	}
+	if expressions[2] == nil {
+		return &rangeSelector{
+			start: constantValue{value: 0},
+			end:   expressions[1],
+		}, nil
+	}
 	return &sliceSelector{
 		start: expressions[0],
 		end:   expressions[1],
 		step:  expressions[2],
 	}, nil
-}
-
-func astSingleExpression(ctx *parser.SingleExpressionContext) (expression, error) {
-	return nil, nil
 }

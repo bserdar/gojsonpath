@@ -16,7 +16,7 @@ var _ = reflect.Copy
 var _ = strconv.Itoa
 
 var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 50, 436,
+	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 49, 436,
 	4, 2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 4, 7, 9, 7,
 	4, 8, 9, 8, 4, 9, 9, 9, 4, 10, 9, 10, 4, 11, 9, 11, 4, 12, 9, 12, 4, 13,
 	9, 13, 4, 14, 9, 14, 4, 15, 9, 15, 4, 16, 9, 16, 4, 17, 9, 17, 4, 18, 9,
@@ -67,7 +67,7 @@ var parserATN = []uint16{
 	23, 3, 24, 3, 24, 3, 25, 3, 25, 3, 25, 2, 3, 30, 26, 2, 4, 6, 8, 10, 12,
 	14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48,
 	2, 8, 4, 2, 11, 11, 19, 20, 3, 2, 14, 15, 3, 2, 22, 25, 3, 2, 26, 29, 4,
-	2, 4, 4, 39, 39, 4, 2, 43, 43, 45, 48, 2, 515, 2, 52, 3, 2, 2, 2, 4, 60,
+	2, 4, 4, 39, 39, 4, 2, 43, 43, 45, 47, 2, 515, 2, 52, 3, 2, 2, 2, 4, 60,
 	3, 2, 2, 2, 6, 62, 3, 2, 2, 2, 8, 64, 3, 2, 2, 2, 10, 66, 3, 2, 2, 2, 12,
 	82, 3, 2, 2, 2, 14, 84, 3, 2, 2, 2, 16, 94, 3, 2, 2, 2, 18, 104, 3, 2,
 	2, 2, 20, 107, 3, 2, 2, 2, 22, 121, 3, 2, 2, 2, 24, 123, 3, 2, 2, 2, 26,
@@ -80,14 +80,14 @@ var parserATN = []uint16{
 	58, 3, 2, 2, 2, 58, 3, 3, 2, 2, 2, 59, 57, 3, 2, 2, 2, 60, 61, 7, 3, 2,
 	2, 61, 5, 3, 2, 2, 2, 62, 63, 7, 4, 2, 2, 63, 7, 3, 2, 2, 2, 64, 65, 7,
 	5, 2, 2, 65, 9, 3, 2, 2, 2, 66, 67, 7, 6, 2, 2, 67, 11, 3, 2, 2, 2, 68,
-	83, 5, 14, 8, 2, 69, 70, 5, 8, 5, 2, 70, 71, 5, 22, 12, 2, 71, 83, 3, 2,
-	2, 2, 72, 73, 5, 8, 5, 2, 73, 74, 5, 14, 8, 2, 74, 83, 3, 2, 2, 2, 75,
-	76, 5, 10, 6, 2, 76, 77, 5, 22, 12, 2, 77, 83, 3, 2, 2, 2, 78, 79, 5, 10,
-	6, 2, 79, 80, 5, 14, 8, 2, 80, 83, 3, 2, 2, 2, 81, 83, 5, 10, 6, 2, 82,
+	83, 5, 14, 8, 2, 69, 70, 5, 8, 5, 2, 70, 71, 5, 14, 8, 2, 71, 83, 3, 2,
+	2, 2, 72, 73, 5, 8, 5, 2, 73, 74, 5, 22, 12, 2, 74, 83, 3, 2, 2, 2, 75,
+	76, 5, 10, 6, 2, 76, 77, 5, 14, 8, 2, 77, 83, 3, 2, 2, 2, 78, 79, 5, 10,
+	6, 2, 79, 80, 5, 22, 12, 2, 80, 83, 3, 2, 2, 2, 81, 83, 5, 10, 6, 2, 82,
 	68, 3, 2, 2, 2, 82, 69, 3, 2, 2, 2, 82, 72, 3, 2, 2, 2, 82, 75, 3, 2, 2,
 	2, 82, 78, 3, 2, 2, 2, 82, 81, 3, 2, 2, 2, 83, 13, 3, 2, 2, 2, 84, 86,
-	7, 7, 2, 2, 85, 87, 7, 50, 2, 2, 86, 85, 3, 2, 2, 2, 86, 87, 3, 2, 2, 2,
-	87, 88, 3, 2, 2, 2, 88, 90, 5, 16, 9, 2, 89, 91, 7, 50, 2, 2, 90, 89, 3,
+	7, 7, 2, 2, 85, 87, 7, 49, 2, 2, 86, 85, 3, 2, 2, 2, 86, 87, 3, 2, 2, 2,
+	87, 88, 3, 2, 2, 2, 88, 90, 5, 16, 9, 2, 89, 91, 7, 49, 2, 2, 90, 89, 3,
 	2, 2, 2, 90, 91, 3, 2, 2, 2, 91, 92, 3, 2, 2, 2, 92, 93, 7, 8, 2, 2, 93,
 	15, 3, 2, 2, 2, 94, 99, 5, 18, 10, 2, 95, 96, 7, 9, 2, 2, 96, 98, 5, 18,
 	10, 2, 97, 95, 3, 2, 2, 2, 98, 101, 3, 2, 2, 2, 99, 97, 3, 2, 2, 2, 99,
@@ -112,13 +112,13 @@ var parserATN = []uint16{
 	30, 16, 2, 147, 148, 7, 9, 2, 2, 148, 150, 5, 30, 16, 2, 149, 147, 3, 2,
 	2, 2, 150, 153, 3, 2, 2, 2, 151, 149, 3, 2, 2, 2, 151, 152, 3, 2, 2, 2,
 	152, 29, 3, 2, 2, 2, 153, 151, 3, 2, 2, 2, 154, 155, 8, 16, 1, 2, 155,
-	157, 7, 14, 2, 2, 156, 158, 7, 50, 2, 2, 157, 156, 3, 2, 2, 2, 157, 158,
+	157, 7, 14, 2, 2, 156, 158, 7, 49, 2, 2, 157, 156, 3, 2, 2, 2, 157, 158,
 	3, 2, 2, 2, 158, 159, 3, 2, 2, 2, 159, 189, 5, 30, 16, 26, 160, 162, 7,
-	15, 2, 2, 161, 163, 7, 50, 2, 2, 162, 161, 3, 2, 2, 2, 162, 163, 3, 2,
+	15, 2, 2, 161, 163, 7, 49, 2, 2, 162, 161, 3, 2, 2, 2, 162, 163, 3, 2,
 	2, 2, 163, 164, 3, 2, 2, 2, 164, 189, 5, 30, 16, 25, 165, 167, 7, 16, 2,
-	2, 166, 168, 7, 50, 2, 2, 167, 166, 3, 2, 2, 2, 167, 168, 3, 2, 2, 2, 168,
+	2, 166, 168, 7, 49, 2, 2, 167, 166, 3, 2, 2, 2, 167, 168, 3, 2, 2, 2, 168,
 	169, 3, 2, 2, 2, 169, 189, 5, 30, 16, 24, 170, 172, 7, 17, 2, 2, 171, 173,
-	7, 50, 2, 2, 172, 171, 3, 2, 2, 2, 172, 173, 3, 2, 2, 2, 173, 174, 3, 2,
+	7, 49, 2, 2, 172, 171, 3, 2, 2, 2, 172, 173, 3, 2, 2, 2, 173, 174, 3, 2,
 	2, 2, 174, 189, 5, 30, 16, 23, 175, 189, 5, 2, 2, 2, 176, 189, 5, 46, 24,
 	2, 177, 189, 5, 44, 23, 2, 178, 189, 5, 32, 17, 2, 179, 189, 5, 38, 20,
 	2, 180, 181, 7, 12, 2, 2, 181, 182, 5, 30, 16, 2, 182, 183, 7, 13, 2, 2,
@@ -127,56 +127,56 @@ var parserATN = []uint16{
 	3, 2, 2, 2, 188, 165, 3, 2, 2, 2, 188, 170, 3, 2, 2, 2, 188, 175, 3, 2,
 	2, 2, 188, 176, 3, 2, 2, 2, 188, 177, 3, 2, 2, 2, 188, 178, 3, 2, 2, 2,
 	188, 179, 3, 2, 2, 2, 188, 180, 3, 2, 2, 2, 188, 184, 3, 2, 2, 2, 189,
-	331, 3, 2, 2, 2, 190, 192, 12, 29, 2, 2, 191, 193, 7, 50, 2, 2, 192, 191,
+	331, 3, 2, 2, 2, 190, 192, 12, 29, 2, 2, 191, 193, 7, 49, 2, 2, 192, 191,
 	3, 2, 2, 2, 192, 193, 3, 2, 2, 2, 193, 194, 3, 2, 2, 2, 194, 196, 7, 5,
-	2, 2, 195, 197, 7, 50, 2, 2, 196, 195, 3, 2, 2, 2, 196, 197, 3, 2, 2, 2,
+	2, 2, 195, 197, 7, 49, 2, 2, 196, 195, 3, 2, 2, 2, 196, 197, 3, 2, 2, 2,
 	197, 198, 3, 2, 2, 2, 198, 330, 5, 30, 16, 30, 199, 201, 12, 22, 2, 2,
-	200, 202, 7, 50, 2, 2, 201, 200, 3, 2, 2, 2, 201, 202, 3, 2, 2, 2, 202,
-	203, 3, 2, 2, 2, 203, 205, 7, 18, 2, 2, 204, 206, 7, 50, 2, 2, 205, 204,
+	200, 202, 7, 49, 2, 2, 201, 200, 3, 2, 2, 2, 201, 202, 3, 2, 2, 2, 202,
+	203, 3, 2, 2, 2, 203, 205, 7, 18, 2, 2, 204, 206, 7, 49, 2, 2, 205, 204,
 	3, 2, 2, 2, 205, 206, 3, 2, 2, 2, 206, 207, 3, 2, 2, 2, 207, 330, 5, 30,
-	16, 22, 208, 210, 12, 21, 2, 2, 209, 211, 7, 50, 2, 2, 210, 209, 3, 2,
+	16, 22, 208, 210, 12, 21, 2, 2, 209, 211, 7, 49, 2, 2, 210, 209, 3, 2,
 	2, 2, 210, 211, 3, 2, 2, 2, 211, 212, 3, 2, 2, 2, 212, 214, 9, 2, 2, 2,
-	213, 215, 7, 50, 2, 2, 214, 213, 3, 2, 2, 2, 214, 215, 3, 2, 2, 2, 215,
+	213, 215, 7, 49, 2, 2, 214, 213, 3, 2, 2, 2, 214, 215, 3, 2, 2, 2, 215,
 	216, 3, 2, 2, 2, 216, 330, 5, 30, 16, 22, 217, 219, 12, 20, 2, 2, 218,
-	220, 7, 50, 2, 2, 219, 218, 3, 2, 2, 2, 219, 220, 3, 2, 2, 2, 220, 221,
-	3, 2, 2, 2, 221, 223, 9, 3, 2, 2, 222, 224, 7, 50, 2, 2, 223, 222, 3, 2,
+	220, 7, 49, 2, 2, 219, 218, 3, 2, 2, 2, 219, 220, 3, 2, 2, 2, 220, 221,
+	3, 2, 2, 2, 221, 223, 9, 3, 2, 2, 222, 224, 7, 49, 2, 2, 223, 222, 3, 2,
 	2, 2, 223, 224, 3, 2, 2, 2, 224, 225, 3, 2, 2, 2, 225, 330, 5, 30, 16,
-	21, 226, 228, 12, 19, 2, 2, 227, 229, 7, 50, 2, 2, 228, 227, 3, 2, 2, 2,
+	21, 226, 228, 12, 19, 2, 2, 227, 229, 7, 49, 2, 2, 228, 227, 3, 2, 2, 2,
 	228, 229, 3, 2, 2, 2, 229, 230, 3, 2, 2, 2, 230, 232, 7, 21, 2, 2, 231,
-	233, 7, 50, 2, 2, 232, 231, 3, 2, 2, 2, 232, 233, 3, 2, 2, 2, 233, 234,
+	233, 7, 49, 2, 2, 232, 231, 3, 2, 2, 2, 232, 233, 3, 2, 2, 2, 233, 234,
 	3, 2, 2, 2, 234, 330, 5, 30, 16, 20, 235, 237, 12, 18, 2, 2, 236, 238,
-	7, 50, 2, 2, 237, 236, 3, 2, 2, 2, 237, 238, 3, 2, 2, 2, 238, 239, 3, 2,
-	2, 2, 239, 241, 9, 4, 2, 2, 240, 242, 7, 50, 2, 2, 241, 240, 3, 2, 2, 2,
+	7, 49, 2, 2, 237, 236, 3, 2, 2, 2, 237, 238, 3, 2, 2, 2, 238, 239, 3, 2,
+	2, 2, 239, 241, 9, 4, 2, 2, 240, 242, 7, 49, 2, 2, 241, 240, 3, 2, 2, 2,
 	241, 242, 3, 2, 2, 2, 242, 243, 3, 2, 2, 2, 243, 330, 5, 30, 16, 19, 244,
-	246, 12, 17, 2, 2, 245, 247, 7, 50, 2, 2, 246, 245, 3, 2, 2, 2, 246, 247,
-	3, 2, 2, 2, 247, 248, 3, 2, 2, 2, 248, 250, 7, 49, 2, 2, 249, 251, 7, 50,
+	246, 12, 17, 2, 2, 245, 247, 7, 49, 2, 2, 246, 245, 3, 2, 2, 2, 246, 247,
+	3, 2, 2, 2, 247, 248, 3, 2, 2, 2, 248, 250, 7, 48, 2, 2, 249, 251, 7, 49,
 	2, 2, 250, 249, 3, 2, 2, 2, 250, 251, 3, 2, 2, 2, 251, 252, 3, 2, 2, 2,
-	252, 330, 5, 30, 16, 18, 253, 255, 12, 16, 2, 2, 254, 256, 7, 50, 2, 2,
+	252, 330, 5, 30, 16, 18, 253, 255, 12, 16, 2, 2, 254, 256, 7, 49, 2, 2,
 	255, 254, 3, 2, 2, 2, 255, 256, 3, 2, 2, 2, 256, 257, 3, 2, 2, 2, 257,
-	259, 9, 5, 2, 2, 258, 260, 7, 50, 2, 2, 259, 258, 3, 2, 2, 2, 259, 260,
+	259, 9, 5, 2, 2, 258, 260, 7, 49, 2, 2, 259, 258, 3, 2, 2, 2, 259, 260,
 	3, 2, 2, 2, 260, 261, 3, 2, 2, 2, 261, 330, 5, 30, 16, 17, 262, 264, 12,
-	15, 2, 2, 263, 265, 7, 50, 2, 2, 264, 263, 3, 2, 2, 2, 264, 265, 3, 2,
-	2, 2, 265, 266, 3, 2, 2, 2, 266, 268, 7, 30, 2, 2, 267, 269, 7, 50, 2,
+	15, 2, 2, 263, 265, 7, 49, 2, 2, 264, 263, 3, 2, 2, 2, 264, 265, 3, 2,
+	2, 2, 265, 266, 3, 2, 2, 2, 266, 268, 7, 30, 2, 2, 267, 269, 7, 49, 2,
 	2, 268, 267, 3, 2, 2, 2, 268, 269, 3, 2, 2, 2, 269, 270, 3, 2, 2, 2, 270,
-	330, 5, 30, 16, 16, 271, 273, 12, 14, 2, 2, 272, 274, 7, 50, 2, 2, 273,
+	330, 5, 30, 16, 16, 271, 273, 12, 14, 2, 2, 272, 274, 7, 49, 2, 2, 273,
 	272, 3, 2, 2, 2, 273, 274, 3, 2, 2, 2, 274, 275, 3, 2, 2, 2, 275, 277,
-	7, 31, 2, 2, 276, 278, 7, 50, 2, 2, 277, 276, 3, 2, 2, 2, 277, 278, 3,
+	7, 31, 2, 2, 276, 278, 7, 49, 2, 2, 277, 276, 3, 2, 2, 2, 277, 278, 3,
 	2, 2, 2, 278, 279, 3, 2, 2, 2, 279, 330, 5, 30, 16, 15, 280, 282, 12, 13,
-	2, 2, 281, 283, 7, 50, 2, 2, 282, 281, 3, 2, 2, 2, 282, 283, 3, 2, 2, 2,
-	283, 284, 3, 2, 2, 2, 284, 286, 7, 32, 2, 2, 285, 287, 7, 50, 2, 2, 286,
+	2, 2, 281, 283, 7, 49, 2, 2, 282, 281, 3, 2, 2, 2, 282, 283, 3, 2, 2, 2,
+	283, 284, 3, 2, 2, 2, 284, 286, 7, 32, 2, 2, 285, 287, 7, 49, 2, 2, 286,
 	285, 3, 2, 2, 2, 286, 287, 3, 2, 2, 2, 287, 288, 3, 2, 2, 2, 288, 330,
-	5, 30, 16, 14, 289, 291, 12, 12, 2, 2, 290, 292, 7, 50, 2, 2, 291, 290,
+	5, 30, 16, 14, 289, 291, 12, 12, 2, 2, 290, 292, 7, 49, 2, 2, 291, 290,
 	3, 2, 2, 2, 291, 292, 3, 2, 2, 2, 292, 293, 3, 2, 2, 2, 293, 295, 7, 33,
-	2, 2, 294, 296, 7, 50, 2, 2, 295, 294, 3, 2, 2, 2, 295, 296, 3, 2, 2, 2,
+	2, 2, 294, 296, 7, 49, 2, 2, 295, 294, 3, 2, 2, 2, 295, 296, 3, 2, 2, 2,
 	296, 297, 3, 2, 2, 2, 297, 330, 5, 30, 16, 13, 298, 300, 12, 11, 2, 2,
-	299, 301, 7, 50, 2, 2, 300, 299, 3, 2, 2, 2, 300, 301, 3, 2, 2, 2, 301,
-	302, 3, 2, 2, 2, 302, 304, 7, 34, 2, 2, 303, 305, 7, 50, 2, 2, 304, 303,
+	299, 301, 7, 49, 2, 2, 300, 299, 3, 2, 2, 2, 300, 301, 3, 2, 2, 2, 301,
+	302, 3, 2, 2, 2, 302, 304, 7, 34, 2, 2, 303, 305, 7, 49, 2, 2, 304, 303,
 	3, 2, 2, 2, 304, 305, 3, 2, 2, 2, 305, 306, 3, 2, 2, 2, 306, 330, 5, 30,
-	16, 12, 307, 309, 12, 10, 2, 2, 308, 310, 7, 50, 2, 2, 309, 308, 3, 2,
+	16, 12, 307, 309, 12, 10, 2, 2, 308, 310, 7, 49, 2, 2, 309, 308, 3, 2,
 	2, 2, 309, 310, 3, 2, 2, 2, 310, 311, 3, 2, 2, 2, 311, 312, 7, 35, 2, 2,
-	312, 314, 5, 30, 16, 2, 313, 315, 7, 50, 2, 2, 314, 313, 3, 2, 2, 2, 314,
+	312, 314, 5, 30, 16, 2, 313, 315, 7, 49, 2, 2, 314, 313, 3, 2, 2, 2, 314,
 	315, 3, 2, 2, 2, 315, 316, 3, 2, 2, 2, 316, 318, 7, 10, 2, 2, 317, 319,
-	7, 50, 2, 2, 318, 317, 3, 2, 2, 2, 318, 319, 3, 2, 2, 2, 319, 320, 3, 2,
+	7, 49, 2, 2, 318, 317, 3, 2, 2, 2, 318, 319, 3, 2, 2, 2, 319, 320, 3, 2,
 	2, 2, 320, 321, 5, 30, 16, 11, 321, 330, 3, 2, 2, 2, 322, 323, 12, 28,
 	2, 2, 323, 324, 7, 7, 2, 2, 324, 325, 5, 28, 15, 2, 325, 326, 7, 8, 2,
 	2, 326, 330, 3, 2, 2, 2, 327, 328, 12, 27, 2, 2, 328, 330, 5, 24, 13, 2,
@@ -186,18 +186,18 @@ var parserATN = []uint16{
 	2, 2, 329, 280, 3, 2, 2, 2, 329, 289, 3, 2, 2, 2, 329, 298, 3, 2, 2, 2,
 	329, 307, 3, 2, 2, 2, 329, 322, 3, 2, 2, 2, 329, 327, 3, 2, 2, 2, 330,
 	333, 3, 2, 2, 2, 331, 329, 3, 2, 2, 2, 331, 332, 3, 2, 2, 2, 332, 31, 3,
-	2, 2, 2, 333, 331, 3, 2, 2, 2, 334, 336, 7, 7, 2, 2, 335, 337, 7, 50, 2,
+	2, 2, 2, 333, 331, 3, 2, 2, 2, 334, 336, 7, 7, 2, 2, 335, 337, 7, 49, 2,
 	2, 336, 335, 3, 2, 2, 2, 336, 337, 3, 2, 2, 2, 337, 338, 3, 2, 2, 2, 338,
-	340, 5, 34, 18, 2, 339, 341, 7, 50, 2, 2, 340, 339, 3, 2, 2, 2, 340, 341,
+	340, 5, 34, 18, 2, 339, 341, 7, 49, 2, 2, 340, 339, 3, 2, 2, 2, 340, 341,
 	3, 2, 2, 2, 341, 342, 3, 2, 2, 2, 342, 343, 7, 8, 2, 2, 343, 33, 3, 2,
 	2, 2, 344, 346, 7, 9, 2, 2, 345, 344, 3, 2, 2, 2, 346, 349, 3, 2, 2, 2,
 	347, 345, 3, 2, 2, 2, 347, 348, 3, 2, 2, 2, 348, 351, 3, 2, 2, 2, 349,
-	347, 3, 2, 2, 2, 350, 352, 7, 50, 2, 2, 351, 350, 3, 2, 2, 2, 351, 352,
+	347, 3, 2, 2, 2, 350, 352, 7, 49, 2, 2, 351, 350, 3, 2, 2, 2, 351, 352,
 	3, 2, 2, 2, 352, 354, 3, 2, 2, 2, 353, 355, 5, 36, 19, 2, 354, 353, 3,
-	2, 2, 2, 354, 355, 3, 2, 2, 2, 355, 370, 3, 2, 2, 2, 356, 358, 7, 50, 2,
+	2, 2, 2, 354, 355, 3, 2, 2, 2, 355, 370, 3, 2, 2, 2, 356, 358, 7, 49, 2,
 	2, 357, 356, 3, 2, 2, 2, 357, 358, 3, 2, 2, 2, 358, 360, 3, 2, 2, 2, 359,
 	361, 7, 9, 2, 2, 360, 359, 3, 2, 2, 2, 361, 362, 3, 2, 2, 2, 362, 360,
-	3, 2, 2, 2, 362, 363, 3, 2, 2, 2, 363, 365, 3, 2, 2, 2, 364, 366, 7, 50,
+	3, 2, 2, 2, 362, 363, 3, 2, 2, 2, 363, 365, 3, 2, 2, 2, 364, 366, 7, 49,
 	2, 2, 365, 364, 3, 2, 2, 2, 365, 366, 3, 2, 2, 2, 366, 367, 3, 2, 2, 2,
 	367, 369, 5, 36, 19, 2, 368, 357, 3, 2, 2, 2, 369, 372, 3, 2, 2, 2, 370,
 	368, 3, 2, 2, 2, 370, 371, 3, 2, 2, 2, 371, 376, 3, 2, 2, 2, 372, 370,
@@ -236,14 +236,14 @@ var literalNames = []string{
 	"')'", "'+'", "'-'", "'~'", "'!'", "'**'", "'/'", "'%'", "'??'", "'<'",
 	"'>'", "'<='", "'>='", "'=='", "'!='", "'==='", "'!=='", "'&'", "'^'",
 	"'|'", "'&&'", "'||'", "'?'", "'?('", "'{'", "'}'", "", "'...'", "'null'",
-	"", "", "", "", "", "", "", "'in'",
+	"", "", "", "", "", "", "'in'",
 }
 var symbolicNames = []string{
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	"", "Identifier", "Ellipsis", "NullLiteral", "BooleanLiteral", "DecimalLiteral",
-	"StringLiteral", "HexIntegerLiteral", "OctalIntegerLiteral", "OctalIntegerLiteral2",
-	"BinaryIntegerLiteral", "In", "SP",
+	"StringLiteral", "HexIntegerLiteral", "OctalIntegerLiteral2", "BinaryIntegerLiteral",
+	"In", "SP",
 }
 
 var ruleNames = []string{
@@ -329,11 +329,10 @@ const (
 	JsonpathParserDecimalLiteral       = 41
 	JsonpathParserStringLiteral        = 42
 	JsonpathParserHexIntegerLiteral    = 43
-	JsonpathParserOctalIntegerLiteral  = 44
-	JsonpathParserOctalIntegerLiteral2 = 45
-	JsonpathParserBinaryIntegerLiteral = 46
-	JsonpathParserIn                   = 47
-	JsonpathParserSP                   = 48
+	JsonpathParserOctalIntegerLiteral2 = 44
+	JsonpathParserBinaryIntegerLiteral = 45
+	JsonpathParserIn                   = 46
+	JsonpathParserSP                   = 47
 )
 
 // JsonpathParser rules.
@@ -1007,7 +1006,7 @@ func (p *JsonpathParser) Path_element() (localctx IPath_elementContext) {
 		}
 		{
 			p.SetState(68)
-			p.Selector()
+			p.Bracketed_selector()
 		}
 
 	case 3:
@@ -1018,7 +1017,7 @@ func (p *JsonpathParser) Path_element() (localctx IPath_elementContext) {
 		}
 		{
 			p.SetState(71)
-			p.Bracketed_selector()
+			p.Selector()
 		}
 
 	case 4:
@@ -1029,7 +1028,7 @@ func (p *JsonpathParser) Path_element() (localctx IPath_elementContext) {
 		}
 		{
 			p.SetState(74)
-			p.Selector()
+			p.Bracketed_selector()
 		}
 
 	case 5:
@@ -1040,7 +1039,7 @@ func (p *JsonpathParser) Path_element() (localctx IPath_elementContext) {
 		}
 		{
 			p.SetState(77)
-			p.Bracketed_selector()
+			p.Selector()
 		}
 
 	case 6:
@@ -1547,7 +1546,7 @@ func (p *JsonpathParser) Slice() (localctx ISliceContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
 		{
 			p.SetState(104)
 			p.singleExpression(0)
@@ -1584,7 +1583,7 @@ func (p *JsonpathParser) Slice() (localctx ISliceContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
 		{
 			p.SetState(114)
 			p.singleExpression(0)
@@ -1687,7 +1686,7 @@ func (p *JsonpathParser) Selector() (localctx ISelectorContext) {
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
-	case JsonpathParserT__0, JsonpathParserT__1, JsonpathParserT__4, JsonpathParserT__9, JsonpathParserT__11, JsonpathParserT__12, JsonpathParserT__13, JsonpathParserT__14, JsonpathParserT__33, JsonpathParserT__34, JsonpathParserIdentifier, JsonpathParserNullLiteral, JsonpathParserBooleanLiteral, JsonpathParserDecimalLiteral, JsonpathParserStringLiteral, JsonpathParserHexIntegerLiteral, JsonpathParserOctalIntegerLiteral, JsonpathParserOctalIntegerLiteral2, JsonpathParserBinaryIntegerLiteral:
+	case JsonpathParserT__0, JsonpathParserT__1, JsonpathParserT__4, JsonpathParserT__9, JsonpathParserT__11, JsonpathParserT__12, JsonpathParserT__13, JsonpathParserT__14, JsonpathParserT__33, JsonpathParserT__34, JsonpathParserIdentifier, JsonpathParserNullLiteral, JsonpathParserBooleanLiteral, JsonpathParserDecimalLiteral, JsonpathParserStringLiteral, JsonpathParserHexIntegerLiteral, JsonpathParserOctalIntegerLiteral2, JsonpathParserBinaryIntegerLiteral:
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(117)
@@ -1821,7 +1820,7 @@ func (p *JsonpathParser) Arguments() (localctx IArgumentsContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserEllipsis-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserEllipsis-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
 		{
 			p.SetState(122)
 			p.Argument()
@@ -4738,7 +4737,7 @@ func (p *JsonpathParser) ElementList() (localctx IElementListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserEllipsis-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserEllipsis-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
 		{
 			p.SetState(351)
 			p.ArrayElement()
@@ -5041,7 +5040,7 @@ func (p *JsonpathParser) ObjectLiteral() (localctx IObjectLiteralContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserEllipsis-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
+	if (((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<JsonpathParserT__0)|(1<<JsonpathParserT__1)|(1<<JsonpathParserT__4)|(1<<JsonpathParserT__9)|(1<<JsonpathParserT__11)|(1<<JsonpathParserT__12)|(1<<JsonpathParserT__13)|(1<<JsonpathParserT__14))) != 0) || (((_la-34)&-(0x1f+1)) == 0 && ((1<<uint((_la-34)))&((1<<(JsonpathParserT__33-34))|(1<<(JsonpathParserT__34-34))|(1<<(JsonpathParserIdentifier-34))|(1<<(JsonpathParserEllipsis-34))|(1<<(JsonpathParserNullLiteral-34))|(1<<(JsonpathParserBooleanLiteral-34))|(1<<(JsonpathParserDecimalLiteral-34))|(1<<(JsonpathParserStringLiteral-34))|(1<<(JsonpathParserHexIntegerLiteral-34))|(1<<(JsonpathParserOctalIntegerLiteral2-34))|(1<<(JsonpathParserBinaryIntegerLiteral-34)))) != 0) {
 		{
 			p.SetState(383)
 			p.PropertyAssignment()
@@ -5502,7 +5501,7 @@ func (p *JsonpathParser) PropertyName() (localctx IPropertyNameContext) {
 			p.Match(JsonpathParserStringLiteral)
 		}
 
-	case JsonpathParserDecimalLiteral, JsonpathParserHexIntegerLiteral, JsonpathParserOctalIntegerLiteral, JsonpathParserOctalIntegerLiteral2, JsonpathParserBinaryIntegerLiteral:
+	case JsonpathParserDecimalLiteral, JsonpathParserHexIntegerLiteral, JsonpathParserOctalIntegerLiteral2, JsonpathParserBinaryIntegerLiteral:
 		p.EnterOuterAlt(localctx, 3)
 		{
 			p.SetState(416)
@@ -5656,7 +5655,7 @@ func (p *JsonpathParser) Literal() (localctx ILiteralContext) {
 			p.Match(JsonpathParserStringLiteral)
 		}
 
-	case JsonpathParserDecimalLiteral, JsonpathParserHexIntegerLiteral, JsonpathParserOctalIntegerLiteral, JsonpathParserOctalIntegerLiteral2, JsonpathParserBinaryIntegerLiteral:
+	case JsonpathParserDecimalLiteral, JsonpathParserHexIntegerLiteral, JsonpathParserOctalIntegerLiteral2, JsonpathParserBinaryIntegerLiteral:
 		p.EnterOuterAlt(localctx, 4)
 		{
 			p.SetState(426)
@@ -5815,10 +5814,6 @@ func (s *NumericLiteralContext) HexIntegerLiteral() antlr.TerminalNode {
 	return s.GetToken(JsonpathParserHexIntegerLiteral, 0)
 }
 
-func (s *NumericLiteralContext) OctalIntegerLiteral() antlr.TerminalNode {
-	return s.GetToken(JsonpathParserOctalIntegerLiteral, 0)
-}
-
 func (s *NumericLiteralContext) OctalIntegerLiteral2() antlr.TerminalNode {
 	return s.GetToken(JsonpathParserOctalIntegerLiteral2, 0)
 }
@@ -5873,7 +5868,7 @@ func (p *JsonpathParser) NumericLiteral() (localctx INumericLiteralContext) {
 		p.SetState(431)
 		_la = p.GetTokenStream().LA(1)
 
-		if !(((_la-41)&-(0x1f+1)) == 0 && ((1<<uint((_la-41)))&((1<<(JsonpathParserDecimalLiteral-41))|(1<<(JsonpathParserHexIntegerLiteral-41))|(1<<(JsonpathParserOctalIntegerLiteral-41))|(1<<(JsonpathParserOctalIntegerLiteral2-41))|(1<<(JsonpathParserBinaryIntegerLiteral-41)))) != 0) {
+		if !(((_la-41)&-(0x1f+1)) == 0 && ((1<<uint((_la-41)))&((1<<(JsonpathParserDecimalLiteral-41))|(1<<(JsonpathParserHexIntegerLiteral-41))|(1<<(JsonpathParserOctalIntegerLiteral2-41))|(1<<(JsonpathParserBinaryIntegerLiteral-41)))) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)

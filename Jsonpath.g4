@@ -23,10 +23,10 @@ recursive_descent
 
 path_element
   : bracketed_selector
-  | child_selector selector
   | child_selector bracketed_selector
-  | recursive_descent selector
+  | child_selector selector
   | recursive_descent bracketed_selector
+  | recursive_descent selector
   | recursive_descent
   ;
 
@@ -149,7 +149,6 @@ Identifier: IdentifierStart IdentifierPart*;
 numericLiteral
     : DecimalLiteral
     | HexIntegerLiteral
-    | OctalIntegerLiteral
     | OctalIntegerLiteral2
     | BinaryIntegerLiteral
     ;
@@ -169,7 +168,6 @@ StringLiteral:
 ;
 
 HexIntegerLiteral    : '0' [xX] [0-9a-fA-F] HexDigit*;
-OctalIntegerLiteral  : '0' [0-7]+ ;
 OctalIntegerLiteral2 : '0' [oO] [0-7] [_0-7]*;
 BinaryIntegerLiteral : '0' [bB] [01] [_01]*;
 
@@ -179,7 +177,7 @@ SP: [ \n\t\r]+;
 
 
 fragment ExponentPart: [eE] [+-]? [0-9_]+;
-fragment DecimalIntegerLiteral: '0' | [1-9] [0-9_]*;
+fragment DecimalIntegerLiteral: '0' | [0-9] [0-9_]*;
 fragment DoubleStringCharacter: ~["\\\r\n] | '\\' EscapeSequence | LineContinuation;
 fragment SingleStringCharacter: ~['\\\r\n] | '\\' EscapeSequence | LineContinuation;
 fragment EscapeSequence:

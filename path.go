@@ -16,15 +16,17 @@ type Path struct {
 }
 
 type Element struct {
-	Node  any
-	Type  NodeType
-	Name  *string
-	Index *int
+	Node any
+	Type NodeType
+	// if previous element is an object, name is set
+	Name string
+	// If previous element is an array, name is set
+	Index int
 }
 
 type selector interface {
 	match(DocModel, []Element) bool
-	selectChildNodes(DocModel, Element) (children []Element, canSelect bool)
+	selectChildNodes(DocModel, []Element) (children []Element, canSelect bool)
 }
 
 func Find(doc DocModel, path Path) ([]any, error) {
@@ -66,11 +68,11 @@ func evaluateAt(doc DocModel, path Path, pathIx int, currentPath []Element, capt
 		if pathIx+1 < len(path.selectors) {
 			// There is a selector.
 			nextSelector := path.selectors[pathIx+1]
-			childNodeElements, canSelect := nextSelector.selectChildNodes(doc, currentPath[len(currentPath)-1])
+			childNodeElements, canSelect := nextSelector.selectChildNodes(doc, currentPath)
 			if canSelect {
 				for _, childNode := range childNodeElements {
 					currentPath = append(currentPath, childNode)
-					if err := evaluateAt(doc, path, pathIx+1, currentPath, capture); err != nil {
+					if err := evaluateAt(doc, path, pathIx+2, currentPath, capture); err != nil {
 						return err
 					}
 					currentPath = currentPath[:len(currentPath)-1]
@@ -84,11 +86,11 @@ func evaluateAt(doc DocModel, path Path, pathIx int, currentPath []Element, capt
 				// No children, return
 			case ObjectNode:
 				for _, key := range doc.Keys(node) {
-					value := doc.Key(node, key)
+					value, _ := doc.Key(node, key)
 					childElem := Element{
 						Node: value,
 						Type: doc.Type(value),
-						Name: &key,
+						Name: key,
 					}
 					currentPath = append(currentPath, childElem)
 					if err := evaluateAt(doc, path, pathIx+1, currentPath, capture); err != nil {
@@ -104,7 +106,7 @@ func evaluateAt(doc DocModel, path Path, pathIx int, currentPath []Element, capt
 					childElem := Element{
 						Node:  value,
 						Type:  doc.Type(value),
-						Index: &index,
+						Index: index,
 					}
 					currentPath = append(currentPath, childElem)
 					if err := evaluateAt(doc, path, pathIx+1, currentPath, capture); err != nil {
@@ -131,11 +133,11 @@ func evaluateAt(doc DocModel, path Path, pathIx int, currentPath []Element, capt
 			}
 		case ObjectNode:
 			for _, key := range doc.Keys(node) {
-				value := doc.Key(node, key)
+				value, _ := doc.Key(node, key)
 				childElem := Element{
 					Node: value,
 					Type: doc.Type(value),
-					Name: &key,
+					Name: key,
 				}
 				currentPath = append(currentPath, childElem)
 				if err := evaluateAt(doc, path, pathIx+1, currentPath, capture); err != nil {
@@ -154,7 +156,7 @@ func evaluateAt(doc DocModel, path Path, pathIx int, currentPath []Element, capt
 				childElem := Element{
 					Node:  value,
 					Type:  doc.Type(value),
-					Index: &index,
+					Index: index,
 				}
 				currentPath = append(currentPath, childElem)
 				if err := evaluateAt(doc, path, pathIx+1, currentPath, capture); err != nil {
@@ -180,7 +182,7 @@ func (rootElementSelector) match(doc DocModel, el []Element) bool {
 	return el[len(el)-1].Node == doc.Root()
 }
 
-func (rootElementSelector) selectChildNodes(DocModel, Element) (children []Element, canSelect bool) {
+func (rootElementSelector) selectChildNodes(DocModel, []Element) (children []Element, canSelect bool) {
 	return nil, false
 }
 
@@ -190,7 +192,7 @@ func (currentElementSelector) match(doc DocModel, el []Element) bool {
 	return len(el) != 0
 }
 
-func (currentElementSelector) selectChildNodes(DocModel, Element) (children []Element, canSelect bool) {
+func (currentElementSelector) selectChildNodes(DocModel, []Element) (children []Element, canSelect bool) {
 	return nil, false
 }
 
@@ -207,25 +209,95 @@ func (sel *unionSelector) match(doc DocModel, el []Element) bool {
 	return false
 }
 
-func (sel *unionSelector) selectChildNodes(DocModel, Element) (children []Element, canSelect bool) {
-	return nil, false
-}
-
-type sliceSelector struct {
-	start expression
-	end   expression
-	step  expression
-}
-
-func (sel *sliceSelector) match(doc DocModel, el []Element) bool {
-	return false
-}
-
-func (sel *sliceSelector) selectChildNodes(DocModel, Element) (children []Element, canSelect bool) {
+func (sel *unionSelector) selectChildNodes(DocModel, []Element) (children []Element, canSelect bool) {
 	return nil, false
 }
 
 type wildcardSelector struct{}
 
-func (wildcardSelector) match(DocModel, []Element) bool                       { return true }
-func (wildcardSelector) selectChildNodes(DocModel, Element) ([]Element, bool) { return nil, false }
+func (wildcardSelector) match(DocModel, []Element) bool                         { return true }
+func (wildcardSelector) selectChildNodes(DocModel, []Element) ([]Element, bool) { return nil, false }
+
+type keySelector struct {
+	key  string
+	expr expression
+}
+
+// Determines if last element of el is an object element
+func isObjectElement(el []Element) bool {
+	if len(el) < 2 {
+		return false
+	}
+	return el[len(el)-2].Type == ObjectNode
+}
+
+// Determines if last element of el is an object
+func isObject(el []Element) bool {
+	if len(el) < 1 {
+		return false
+	}
+	return el[len(el)-1].Type == ObjectNode
+}
+
+func (sel *keySelector) intValue() *int {
+	if sel.expr == nil {
+		return nil
+	}
+	val := sel.expr.evaluate()
+	if v, ok := val.value.(int); ok {
+		return &v
+	}
+	return nil
+}
+
+func (sel *keySelector) match(doc DocModel, el []Element) bool {
+	if isObjectElement(el) {
+		return el[len(el)-1].Name == sel.key
+	}
+	if isArrayElement(el) {
+		if v := sel.intValue(); v != nil {
+			return el[len(el)-1].Index == *v
+		}
+	}
+	return false
+}
+
+func (sel *keySelector) selectChildNodes(doc DocModel, el []Element) ([]Element, bool) {
+	if isObject(el) {
+		node, ok := doc.Key(el[len(el)-1].Node, sel.key)
+		if !ok {
+			return nil, true
+		}
+		return []Element{
+			{
+				Node: node,
+				Type: doc.Type(node),
+				Name: sel.key,
+			},
+		}, true
+	}
+	if isArray(el) {
+		if v := sel.intValue(); v != nil {
+			n := doc.Len(el[len(el)-1].Node)
+			index := *v
+			if index < 0 {
+				index = n + index
+				if index < 0 {
+					return nil, true
+				}
+			}
+			if index >= n {
+				return nil, true
+			}
+			node := doc.Elem(el[len(el)-1].Node, index)
+			return []Element{
+				{
+					Node:  node,
+					Type:  doc.Type(node),
+					Index: index,
+				},
+			}, true
+		}
+	}
+	return nil, true
+}

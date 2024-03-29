@@ -16,7 +16,7 @@ type DocModel interface {
 	// Works on object and array nodes
 	Len(any) int
 	// Lookup a key in an object node
-	Key(any, string) any
+	Key(any, string) (any, bool)
 	// Keys of an object node
 	Keys(any) []string
 	// Lookup and item in an array node
@@ -53,12 +53,12 @@ func (m MapModel) Len(in any) int {
 	return 1
 }
 
-func (m MapModel) Key(in any, key string) any {
+func (m MapModel) Key(in any, key string) (any, bool) {
 	obj, ok := in.(map[string]any)
 	if !ok {
-		return nil
+		return nil, false
 	}
-	return obj[key]
+	return obj[key], true
 }
 
 func (m MapModel) Keys(in any) []string {
