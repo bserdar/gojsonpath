@@ -2,6 +2,7 @@ package gojsonpath
 
 import (
 	"errors"
+	"strconv"
 )
 
 var (
@@ -55,69 +56,66 @@ func evaluateAt(doc DocModel, path Path, pathIx int, currentPath []Element, capt
 	if !path.selectors[pathIx].match(doc, currentPath) {
 		return nil
 	}
-	// Cannot descend, complete
-	if pathIx >= len(path.recursive) {
-		capture(currentPath[len(currentPath)-1])
-		return nil
-	}
-
+	// This document node satisfies the selector
+	// Move to a child document node, and the next selector
 	// Descend
 	if !path.recursive[pathIx] {
-		// Single descend
+		// Move to next selector
+		pathIx++
 		// Is there a selector?
-		if pathIx+1 < len(path.selectors) {
-			// There is a selector.
-			nextSelector := path.selectors[pathIx+1]
-			childNodeElements, canSelect := nextSelector.selectChildNodes(doc, currentPath)
-			if canSelect {
-				for _, childNode := range childNodeElements {
-					currentPath = append(currentPath, childNode)
-					if err := evaluateAt(doc, path, pathIx+2, currentPath, capture); err != nil {
-						return err
-					}
-					currentPath = currentPath[:len(currentPath)-1]
-				}
-				return nil
-			} // if canSelect
-			// Cannot select. Iterate all children
-			node := currentPath[len(currentPath)-1].Node
-			switch doc.Type(node) {
-			case ValueNode:
-				// No children, return
-			case ObjectNode:
-				for _, key := range doc.Keys(node) {
-					value, _ := doc.Key(node, key)
-					childElem := Element{
-						Node: value,
-						Type: doc.Type(value),
-						Name: key,
-					}
-					currentPath = append(currentPath, childElem)
-					if err := evaluateAt(doc, path, pathIx+1, currentPath, capture); err != nil {
-						return err
-					}
-					currentPath = currentPath[:len(currentPath)-1]
-				}
-			case ArrayNode:
-				n := doc.Len(node)
-				for i := 0; i < n; i++ {
-					value := doc.Elem(node, i)
-					index := i
-					childElem := Element{
-						Node:  value,
-						Type:  doc.Type(value),
-						Index: index,
-					}
-					currentPath = append(currentPath, childElem)
-					if err := evaluateAt(doc, path, pathIx+1, currentPath, capture); err != nil {
-						return err
-					}
-					currentPath = currentPath[:len(currentPath)-1]
-				}
-			} // switch doc.Type(node)
+		if pathIx >= len(path.selectors) {
+			capture(currentPath[len(currentPath)-1])
 			return nil
-		} // pathIx+1 < len(path.selectors)
-		// There is no more selectors. This is not supported
+		}
+
+		// Can this selector select its children?
+		childNodeElements, canSelect := path.selectors[pathIx].selectChildNodes(doc, currentPath)
+		if canSelect {
+			for _, childNode := range childNodeElements {
+				currentPath = append(currentPath, childNode)
+				if err := evaluateAt(doc, path, pathIx, currentPath, capture); err != nil {
+					return err
+				}
+				currentPath = currentPath[:len(currentPath)-1]
+			}
+			return nil
+		} // if canSelect
+
+		// Selector at pathIx Cannot select children, so we iterate all
+		node := currentPath[len(currentPath)-1].Node
+		switch doc.Type(node) {
+		case ValueNode:
+		case ObjectNode:
+			for _, key := range doc.Keys(node) {
+				value, _ := doc.Key(node, key)
+				childElem := Element{
+					Node: value,
+					Type: doc.Type(value),
+					Name: key,
+				}
+				currentPath = append(currentPath, childElem)
+				if err := evaluateAt(doc, path, pathIx, currentPath, capture); err != nil {
+					return err
+				}
+				currentPath = currentPath[:len(currentPath)-1]
+			}
+		case ArrayNode:
+			n := doc.Len(node)
+			for i := 0; i < n; i++ {
+				value := doc.Elem(node, i)
+				index := i
+				childElem := Element{
+					Node:  value,
+					Type:  doc.Type(value),
+					Index: index,
+				}
+				currentPath = append(currentPath, childElem)
+				if err := evaluateAt(doc, path, pathIx, currentPath, capture); err != nil {
+					return err
+				}
+				currentPath = currentPath[:len(currentPath)-1]
+			}
+		} // switch doc.Type(node)
 		return nil
 	} // if !path.recursive[pathIx]
 
@@ -239,13 +237,25 @@ func isObject(el []Element) bool {
 	return el[len(el)-1].Type == ObjectNode
 }
 
-func (sel *keySelector) intValue() *int {
+func (sel *keySelector) intValue(doc DocModel, el []Element) *int {
+	if len(sel.key) != 0 {
+		i, err := strconv.Atoi(sel.key)
+		if err == nil {
+			return &i
+		}
+	}
 	if sel.expr == nil {
 		return nil
 	}
-	val := sel.expr.evaluate()
+	val, _ := sel.expr.evaluate(doc, el)
 	if v, ok := val.value.(int); ok {
 		return &v
+	}
+	if s, ok := val.value.(string); ok {
+		i, err := strconv.Atoi(s)
+		if err == nil {
+			return &i
+		}
 	}
 	return nil
 }
@@ -255,7 +265,14 @@ func (sel *keySelector) match(doc DocModel, el []Element) bool {
 		return el[len(el)-1].Name == sel.key
 	}
 	if isArrayElement(el) {
-		if v := sel.intValue(); v != nil {
+		if v := sel.intValue(doc, el); v != nil {
+			if *v < 0 {
+				n := doc.Len(el[len(el)-2].Node)
+				*v = normalizeIndex(*v, n)
+				if *v < 0 {
+					return false
+				}
+			}
 			return el[len(el)-1].Index == *v
 		}
 	}
@@ -277,14 +294,11 @@ func (sel *keySelector) selectChildNodes(doc DocModel, el []Element) ([]Element,
 		}, true
 	}
 	if isArray(el) {
-		if v := sel.intValue(); v != nil {
+		if v := sel.intValue(doc, el); v != nil {
 			n := doc.Len(el[len(el)-1].Node)
-			index := *v
+			index := normalizeIndex(*v, n)
 			if index < 0 {
-				index = n + index
-				if index < 0 {
-					return nil, true
-				}
+				return nil, true
 			}
 			if index >= n {
 				return nil, true
@@ -299,5 +313,21 @@ func (sel *keySelector) selectChildNodes(doc DocModel, el []Element) ([]Element,
 			}, true
 		}
 	}
-	return nil, true
+	return nil, false
+}
+
+type filterSelector struct {
+	filter expression
+}
+
+func (sel *filterSelector) match(doc DocModel, el []Element) bool {
+	v, err := sel.filter.evaluate(doc, el)
+	if err != nil {
+		return false
+	}
+	return v.asBool()
+}
+
+func (sel *filterSelector) selectChildNodes(DocModel, []Element) (children []Element, canSelect bool) {
+	return nil, false
 }

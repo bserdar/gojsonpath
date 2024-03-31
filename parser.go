@@ -3,7 +3,7 @@ package gojsonpath
 import (
 	"fmt"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/antlr4-go/antlr/v4"
 
 	"github.com/bserdar/gojsonpath/parser"
 )
@@ -28,6 +28,12 @@ func (lst *errorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymb
 }
 
 func Parse(input string) (Path, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("PANIC:", input)
+			fmt.Println(r)
+		}
+	}()
 	pr := getParser(input)
 	pr.RemoveErrorListeners()
 	errListener := errorListener{}
@@ -37,7 +43,7 @@ func Parse(input string) (Path, error) {
 		return Path{}, fmt.Errorf("%w, input: %s", errListener.err, input)
 	}
 	// Build a matcher from AST
-	return astPath(c.(*parser.PathContext))
+	return astPath(c.Expression())
 }
 
 // GetParser returns a parser that will parse the input string
@@ -52,128 +58,218 @@ func getParser(input string) *parser.JsonpathParser {
 	return p
 }
 
-func astPath(ctx *parser.PathContext) (path Path, err error) {
-	path.selectors = make([]selector, 1, 32)
-	path.recursive = make([]bool, 0, 32)
-	if ctx.Root_selector() != nil {
-		path.selectors[0] = &rootElementSelector{}
-	} else {
-		path.selectors[0] = &currentElementSelector{}
-	}
-	for _, el := range ctx.AllPath_element() {
-		elCtx := el.(*parser.Path_elementContext)
-		if elCtx.Recursive_descent() != nil {
-			path.recursive = append(path.recursive, true)
-		} else {
-			path.recursive = append(path.recursive, false)
+func astPath(ctx parser.IExpressionContext) (path Path, err error) {
+	// A Path can be a chain, recursive descent, member index, or selector
+	switch expr := ctx.(type) {
+	case *parser.SelectorExpressionContext:
+		switch expr.Selector().GetText() {
+		case "$":
+			path.selectors = []selector{rootElementSelector{}}
+			path.recursive = []bool{false}
+		case "@":
+			path.selectors = []selector{currentElementSelector{}}
+			path.recursive = []bool{false}
+		case "*":
+			path.selectors = []selector{wildcardSelector{}}
+			path.recursive = []bool{false}
 		}
+		return
 
-		if bracketed := elCtx.Bracketed_selector(); bracketed != nil {
-			if err = astBracketedSelector(bracketed.(*parser.Bracketed_selectorContext), &path); err != nil {
-				return
-			}
-		} else if selector := elCtx.Selector(); selector != nil {
-			if err = astSelector(selector.(*parser.SelectorContext), &path); err != nil {
-				return
-			}
+	case *parser.ChainExpressionContext:
+		sub := expr.AllExpression() // must be 2
+		var left, right Path
+		if left, err = astPath(sub[0]); err != nil {
+			return
 		}
+		if right, err = astPath(sub[1]); err != nil {
+			return
+		}
+		// Combine paths
+		path.selectors = append(left.selectors, right.selectors...)
+		path.recursive = append(left.recursive[:len(left.recursive)-1], false)
+		path.recursive = append(path.recursive, right.recursive...)
+		return
+
+	case *parser.RecursiveDescentTermExpressionContext: // This is an expression that ends with ... It is equivalent to ..*
+		if path, err = astPath(expr.Expression()); err != nil {
+			return
+		}
+		path.selectors = append(path.selectors, wildcardSelector{})
+		path.recursive = append(path.recursive[:len(path.recursive)-1], true)
+		return
+
+	case *parser.RecursiveDescentExpressionContext:
+		sub := expr.AllExpression() // must be 2
+		var left, right Path
+		if left, err = astPath(sub[0]); err != nil {
+			return
+		}
+		if right, err = astPath(sub[1]); err != nil {
+			return
+		}
+		// Combine paths
+		path.selectors = append(left.selectors, right.selectors...)
+		path.recursive = append(left.recursive[:len(left.recursive)-1], true)
+		path.recursive = append(path.recursive, right.recursive...)
+		return
+
+	case *parser.MemberIndexExpressionContext:
+		var left, right Path
+		if left, err = astPath(expr.Expression()); err != nil {
+			return
+		}
+		indexExprs := expr.AllIndexExpression()
+		if right, err = astBracketedSelector(indexExprs); err != nil {
+			return
+		}
+		// Combine paths
+		path.selectors = append(left.selectors, right.selectors...)
+		path.recursive = append(left.recursive[:len(left.recursive)-1], false)
+		path.recursive = append(path.recursive, right.recursive...)
+		return
+
+	case *parser.ArrayLiteralExpressionContext: // Paths of the form where member index is at the end(...[0]) appear like array literals
+		list := expr.ArrayLiteral().(*parser.ArrayLiteralContext).ElementList().(*parser.ElementListContext).AllExpression()
+		path, err = astBracketedSelectorExpressions(list)
+		return
+
+	case *parser.LiteralExpressionContext:
+		var sel selector
+		if sel, err = astKeySelectorFromLiteral(expr); err != nil {
+			return
+		}
+		path.selectors = []selector{sel}
+		path.recursive = []bool{false}
+		return
+
+	case *parser.IdentifierExpressionContext: // This is a key selector
+		var sel selector
+		if sel, err = astKeySelectorFromIdentifier(expr); err != nil {
+			return
+		}
+		path.selectors = []selector{sel}
+		path.recursive = []bool{false}
+		return
+
+	default:
+		// Use the expression text as the key
+		var e expression
+		if e, err = astExpression(expr, true); err != nil {
+			return
+		}
+		path.selectors = []selector{
+			&keySelector{
+				key:  expr.GetText(),
+				expr: e,
+			},
+		}
+		path.recursive = []bool{false}
+
+		return
 	}
+
 	return
 }
 
-func astBracketedSelector(ctx *parser.Bracketed_selectorContext, path *Path) error {
-	return astUnion(ctx.Union().(*parser.UnionContext), path)
+func astKeySelectorFromLiteral(ctx *parser.LiteralExpressionContext) (selector, error) {
+	lit := ctx.Literal()
+	if str := lit.(*parser.LiteralContext).StringLiteral(); str != nil {
+		return &keySelector{
+			key: unescapeString(str.GetText()),
+		}, nil
+	}
+	expr, _ := astExpression(ctx, true)
+	return &keySelector{
+		key:  lit.GetText(),
+		expr: expr,
+	}, nil
 }
 
-func astUnion(ctx *parser.UnionContext, path *Path) error {
-	parts := ctx.AllUnionPart()
-	selector := &unionSelector{
-		parts: make([]selector, 0, len(parts)),
+func astKeySelectorFromIdentifier(ctx *parser.IdentifierExpressionContext) (selector, error) {
+	return &keySelector{
+		key: ctx.GetText(),
+	}, nil
+}
+
+func astBracketedSelector(ctxs []parser.IIndexExpressionContext) (path Path, err error) {
+	u := &unionSelector{
+		parts: make([]selector, 0, len(ctxs)),
 	}
-	for _, part := range parts {
-		p, err := astUnionPart(part.(*parser.UnionPartContext))
-		if err != nil {
-			return err
+	for _, c := range ctxs {
+		ctx := c.(*parser.IndexExpressionContext)
+		var sel selector
+		if expr := ctx.Expression(); expr != nil {
+			sel, err = astBracketedExpressionSelector(expr)
+			if err != nil {
+				return
+			}
+		} else if slice := ctx.Slice(); slice != nil {
+			sel, err = astSlice(slice.(*parser.SliceContext))
+			if err != nil {
+				return
+			}
 		}
-		selector.parts = append(selector.parts, p)
+		if sel != nil {
+			u.parts = append(u.parts, sel)
+		}
 	}
-	if len(selector.parts) == 1 {
-		path.selectors = append(path.selectors, selector.parts[0])
+	if len(u.parts) == 1 {
+		path.selectors = []selector{u.parts[0]}
 	} else {
-		path.selectors = append(path.selectors, selector)
+		path.selectors = []selector{u}
 	}
-	return nil
+	path.recursive = []bool{false}
+	return
 }
 
-func astUnionPart(ctx *parser.UnionPartContext) (selector, error) {
-	if sel := ctx.Selector(); sel != nil {
-		return astNestedSelector(sel.(*parser.SelectorContext))
+func astBracketedSelectorExpressions(ctxs []parser.IExpressionContext) (path Path, err error) {
+	u := &unionSelector{
+		parts: make([]selector, 0, len(ctxs)),
 	}
-	return astSlice(ctx.Slice().(*parser.SliceContext))
+	for _, c := range ctxs {
+		var sel selector
+		if sel, err = astBracketedExpressionSelector(c); err != nil {
+			return
+		}
+		u.parts = append(u.parts, sel)
+	}
+	if len(u.parts) == 1 {
+		path.selectors = []selector{u.parts[0]}
+	} else {
+		path.selectors = []selector{u}
+	}
+	path.recursive = []bool{false}
+	return
 }
 
-func astSelector(ctx *parser.SelectorContext, path *Path) error {
-	sel, err := astNestedSelector(ctx)
+// Expression within a bracket
+func astBracketedExpressionSelector(ctx parser.IExpressionContext) (selector, error) {
+	switch expr := ctx.(type) {
+	case *parser.LiteralExpressionContext:
+		return astKeySelectorFromLiteral(expr)
+	case *parser.IdentifierExpressionContext:
+		return astKeySelectorFromIdentifier(expr)
+	case *parser.FilterExpressionContext:
+		filter, err := astExpression(expr.Expression(), false)
+		if err != nil {
+			return nil, err
+		}
+		return &filterSelector{filter: filter}, nil
+	case *parser.SelectorExpressionContext:
+		switch expr.Selector().GetText() {
+		case "$":
+			return rootElementSelector{}, nil
+		case "@":
+			return currentElementSelector{}, nil
+		case "*":
+			return wildcardSelector{}, nil
+		}
+	}
+	expr, err := astExpression(ctx, true)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	path.selectors = append(path.selectors, sel)
-	return nil
-}
-
-func astNestedSelector(ctx *parser.SelectorContext) (selector, error) {
-	if expr := ctx.SingleExpression(); expr != nil {
-		switch e := expr.(type) {
-		case *parser.LiteralExpressionContext:
-			lit := e.Literal().(*parser.LiteralContext)
-			if l := lit.StringLiteral(); l != nil {
-				return &keySelector{key: unescapeString(l.GetText())}, nil
-			}
-			return &keySelector{
-				key:  lit.GetText(),
-				expr: astLiteral(lit),
-			}, nil
-
-		case *parser.IdentifierExpressionContext,
-			*parser.ArrayLiteralExpressionContext,
-			*parser.ObjectLiteralExpressionContext,
-			*parser.ChainExpressionContext,
-			*parser.MemberIndexExpressionContext,
-			*parser.ArgumentsExpressionContext,
-			*parser.UnaryPlusExpressionContext,
-			*parser.UnaryMinusExpressionContext,
-			*parser.BitNotExpressionContext,
-			*parser.NotExpressionContext,
-			*parser.PowerExpressionContext,
-			*parser.MultiplicativeExpressionContext,
-			*parser.AdditiveExpressionContext,
-			*parser.CoalesceExpressionContext,
-			*parser.RelationalExpressionContext,
-			*parser.InExpressionContext,
-			*parser.EqualityExpressionContext,
-			*parser.BitAndExpressionContext,
-			*parser.BitXOrExpressionContext,
-			*parser.BitOrExpressionContext,
-			*parser.LogicalAndExpressionContext,
-			*parser.LogicalOrExpressionContext,
-			*parser.TernaryExpressionContext,
-			*parser.ParenthesizedExpressionContext:
-			return &keySelector{key: expr.GetText()}, nil
-
-		case *parser.PathExpressionContext:
-		case *parser.FilterExpressionContext:
-
-		}
-		return nil, ErrSyntax(fmt.Sprintf("Unrecognized selector: %s", expr.GetText()))
-	}
-	for _, ch := range ctx.GetChildren() {
-		if tok, ok := ch.(antlr.TerminalNode); ok {
-			if tok.GetText() == "*" {
-				return &wildcardSelector{}, nil
-			}
-		}
-	}
-	return nil, ErrInvalidAST
+	return &keySelector{key: ctx.GetText(), expr: expr}, nil
 }
 
 func astSlice(ctx *parser.SliceContext) (selector, error) {
@@ -184,9 +280,9 @@ func astSlice(ctx *parser.SliceContext) (selector, error) {
 			if tok.GetText() == ":" {
 				index++
 			}
-		} else if expr, ok := ch.(parser.ISingleExpressionContext); ok {
+		} else if expr, ok := ch.(parser.IExpressionContext); ok {
 			var err error
-			expressions[index], err = astSingleExpression(expr)
+			expressions[index], err = astExpression(expr, false)
 			if err != nil {
 				return nil, err
 			}
@@ -205,7 +301,7 @@ func astSlice(ctx *parser.SliceContext) (selector, error) {
 	}
 	if expressions[2] == nil {
 		return &rangeSelector{
-			start: constantValue{value: 0},
+			start: exprValue{value: 0},
 			end:   expressions[1],
 		}, nil
 	}

@@ -21,18 +21,37 @@ func isArray(el []Element) bool {
 	return el[len(el)-1].Type == ArrayNode
 }
 
+func normalizeIndex(index any, len int) int {
+	i, ok := valueAsInt(index)
+	if !ok {
+		return -1
+	}
+	if i >= 0 {
+		return i
+	}
+	if -len <= i {
+		return i + len
+	}
+	return 0
+}
+
 func (sel *indexSelector) match(doc DocModel, el []Element) bool {
 	if !isArrayElement(el) {
 		return false
 	}
-	index := sel.index.evaluate().asInt()
+	ivalue, err := sel.index.evaluate(doc, el)
+	if err != nil {
+		return false
+	}
+	index, ok := valueAsInt(ivalue.value)
+	if !ok {
+		return false
+	}
 	if index < 0 {
-		len := doc.Len(el[len(el)-1].Node)
+		n := doc.Len(el[len(el)-1].Node)
+		index := normalizeIndex(index, n)
 		if index < 0 {
-			index = len + index
-			if index < 0 {
-				return false
-			}
+			return false
 		}
 	}
 	return el[len(el)-1].Index == index
@@ -43,12 +62,13 @@ func (sel *indexSelector) selectChildNodes(doc DocModel, el []Element) (children
 		return nil, true
 	}
 	n := doc.Len(el[len(el)-1].Node)
-	index := sel.index.evaluate().asInt()
+	ivalue, err := sel.index.evaluate(doc, el)
+	if err != nil {
+		return nil, false
+	}
+	index := normalizeIndex(ivalue.value, n)
 	if index < 0 {
-		index = n + index
-		if index < 0 {
-			return nil, true
-		}
+		return nil, true
 	}
 	if index >= n {
 		return nil, true
@@ -69,28 +89,24 @@ type rangeSelector struct {
 	end   expression
 }
 
-func getRange(start, end expression, len int) (from, to int) {
+func getRange(doc DocModel, el []Element, start, end expression, len int) (from, to int) {
 	var s int
 	if start != nil {
-		s = start.evaluate().asInt()
+		ivalue, _ := start.evaluate(doc, el)
+		s = normalizeIndex(ivalue.value, len)
 	}
 	if s < 0 {
-		s = len + s
-		if s < 0 {
-			return -1, -1
-		}
+		return -1, -1
 	}
 	var e int
 	if end != nil {
-		e = end.evaluate().asInt()
+		ivalue, _ := end.evaluate(doc, el)
+		e = normalizeIndex(ivalue.value, len)
 	} else {
 		e = len
 	}
 	if e < 0 {
-		e = len + e
-		if e < 0 {
-			return -1, -1
-		}
+		return -1, -1
 	}
 	return s, e
 }
@@ -99,8 +115,8 @@ func (sel *rangeSelector) match(doc DocModel, el []Element) bool {
 	if !isArrayElement(el) {
 		return false
 	}
-	n := doc.Len(el[len(el)-1].Node)
-	start, end := getRange(sel.start, sel.end, n)
+	n := doc.Len(el[len(el)-2].Node)
+	start, end := getRange(doc, el, sel.start, sel.end, n)
 	index := el[len(el)-1].Index
 	return index >= start && index < end
 }
@@ -110,7 +126,7 @@ func (sel *rangeSelector) selectChildNodes(doc DocModel, el []Element) (children
 		return nil, true
 	}
 	n := doc.Len(el[len(el)-1].Node)
-	start, end := getRange(sel.start, sel.end, n)
+	start, end := getRange(doc, el, sel.start, sel.end, n)
 	if start < 0 || start >= end {
 		return nil, true
 	}
@@ -136,8 +152,8 @@ func (sel *sliceSelector) match(doc DocModel, el []Element) bool {
 	if !isArrayElement(el) {
 		return false
 	}
-	n := doc.Len(el[len(el)-1].Node)
-	start, end := getRange(sel.start, sel.end, n)
+	n := doc.Len(el[len(el)-2].Node)
+	start, end := getRange(doc, el, sel.start, sel.end, n)
 	if start < 0 {
 		return false
 	}
@@ -152,7 +168,15 @@ func (sel *sliceSelector) match(doc DocModel, el []Element) bool {
 		step = -1
 	}
 	if sel.step != nil {
-		step = sel.step.evaluate().asInt()
+		ivalue, err := sel.step.evaluate(doc, el)
+		if err != nil {
+			return false
+		}
+		var ok bool
+		step, ok = valueAsInt(ivalue.value)
+		if !ok {
+			return false
+		}
 	}
 	if step == 0 {
 		return false
@@ -174,7 +198,7 @@ func (sel *sliceSelector) selectChildNodes(doc DocModel, el []Element) (children
 		return nil, true
 	}
 	n := doc.Len(el[len(el)-1].Node)
-	start, end := getRange(sel.start, sel.end, n)
+	start, end := getRange(doc, el, sel.start, sel.end, n)
 	if start < 0 {
 		return nil, true
 	}
@@ -185,7 +209,15 @@ func (sel *sliceSelector) selectChildNodes(doc DocModel, el []Element) (children
 		step = -1
 	}
 	if sel.step != nil {
-		step = sel.step.evaluate().asInt()
+		ivalue, err := sel.step.evaluate(doc, el)
+		if err != nil {
+			return nil, false
+		}
+		var ok bool
+		step, ok = valueAsInt(ivalue.value)
+		if !ok {
+			return nil, false
+		}
 	}
 	if step == 0 {
 		return nil, true

@@ -1,103 +1,63 @@
 grammar Jsonpath;
 
-
-path
-  : (root_selector | current_element_selector) ( path_element )*
-  ;
-
-root_selector
-  : '$'
-  ;
-
-current_element_selector
-  : '@'
-  ;
-
-child_selector
-  : '.'
-  ;
-
-recursive_descent
-  : '..'
-  ;
-
-path_element
-  : bracketed_selector
-  | child_selector bracketed_selector
-  | child_selector selector
-  | recursive_descent bracketed_selector
-  | recursive_descent selector
-  | recursive_descent
-  ;
-
-bracketed_selector
-  : '[' (SP)?  union (SP)? ']'
-  ;
-
-
-union
-  : unionPart (',' unionPart)*
-  ;
-
-unionPart
-  : selector
-  | slice
-  ;
-
-slice
-  : (singleExpression)? ':' (singleExpression)? (( ':' )? (singleExpression)?)
-  ;
+path: expression (SP)? EOF ;
   
 selector
-  : singleExpression
+  : '$'
+  | '@'
   | '*'
   ;
 
 arguments
-    : '(' (argument (',' argument)* ','?)? ')'
+    : '(' (expression (',' expression)* ','?)? ')'
     ;
 
-argument
-    : Ellipsis? (singleExpression | identifier)
-    ;
+slice
+   : (expression)? ':' (expression)? (( ':' )? (expression)?)
+   ;
 
-expressionSequence
-    : singleExpression (',' singleExpression)*
-    ;
+indexExpression
+   : slice
+   | expression
+   ;
 
 
+expression
+    : expression (SP)? '.' (SP)? expression                                                             # ChainExpression
+    | expression (SP)? '..' (SP)? expression                                                            # RecursiveDescentExpression
+    | expression (SP)? '..'                                                                             # RecursiveDescentTermExpression
+    | expression (SP)? '[' (SP)? indexExpression ( (SP)? ',' (SP)? indexExpression)* (SP)? ']'          # MemberIndexExpression
+    | expression (SP)? '..' (SP)? '[' (SP)? indexExpression ( (SP)? ',' (SP)? indexExpression)* (SP)? ']'          # RecursiveDescentMemberIndexExpression
 
-singleExpression
-    : singleExpression (SP)? '.' (SP)? singleExpression                # ChainExpression
-    | singleExpression '[' expressionSequence ']'                      # MemberIndexExpression
-    | singleExpression arguments                                       # ArgumentsExpression
+    | expression arguments                                                  # ArgumentsExpression
 
-    | '+'  (SP)? singleExpression                                                 # UnaryPlusExpression
-    | '-'  (SP)? singleExpression                                                 # UnaryMinusExpression
-    | '~'  (SP)? singleExpression                                                 # BitNotExpression
-    | '!'  (SP)? singleExpression                                                 # NotExpression
-    | <assoc = right> singleExpression  (SP)? '**'  (SP)? singleExpression               # PowerExpression
-    | singleExpression (SP)? ('*' | '/' | '%') (SP)? singleExpression                  # MultiplicativeExpression
-    | singleExpression (SP)? ('+' | '-') (SP)? singleExpression                        # AdditiveExpression
-    | singleExpression (SP)? '??' (SP)? singleExpression                               # CoalesceExpression
-    | singleExpression (SP)? ('<' | '>' | '<=' | '>=') (SP)? singleExpression          # RelationalExpression
-    | singleExpression  (SP)? In  (SP)? singleExpression                                 # InExpression
-    | singleExpression  (SP)? ('==' | '!=' | '===' | '!==')  (SP)? singleExpression      # EqualityExpression
-    | singleExpression  (SP)? '&' (SP)?  singleExpression                                # BitAndExpression
-    | singleExpression  (SP)? '^'  (SP)? singleExpression                                # BitXOrExpression
-    | singleExpression  (SP)? '|'  (SP)? singleExpression                                # BitOrExpression
-    | singleExpression (SP)? '&&' (SP)? singleExpression                               # LogicalAndExpression
-    | singleExpression (SP)? '||' (SP)? singleExpression                               # LogicalOrExpression
-    | singleExpression  (SP)? '?' singleExpression  (SP)? ':'  (SP)? singleExpression           # TernaryExpression
-    | path                                                                 # PathExpression
-    | identifier                                                           # IdentifierExpression
+    | '+'  (SP)? expression                                                 # UnaryPlusExpression
+    | '-'  (SP)? expression                                                 # UnaryMinusExpression
+    | '~'  (SP)? expression                                                 # BitNotExpression
+    | '!'  (SP)? expression                                                 # NotExpression
+    
+    | <assoc = right> expression  (SP)? '**'  (SP)? expression               # PowerExpression
+    | expression (SP)? ('*' | '/' | '%') (SP)? expression                    # MultiplicativeExpression
+    | expression (SP)? ('+' | '-') (SP)? expression                          # AdditiveExpression
+    | expression (SP)? ('<' | '>' | '<=' | '>=') (SP)? expression            # RelationalExpression
+    | expression  (SP)? 'in'  (SP)? expression                                 # InExpression
+    | expression  (SP)? ('==' | '!=' | '===' | '!==')  (SP)? expression      # EqualityExpression
+    | expression  (SP)? '&' (SP)?  expression                                # BitAndExpression
+    | expression  (SP)? '^'  (SP)? expression                                # BitXOrExpression
+    | expression  (SP)? '|'  (SP)? expression                                # BitOrExpression
+    | expression (SP)? '&&' (SP)? expression                                 # LogicalAndExpression
+    | expression (SP)? '||' (SP)? expression                                 # LogicalOrExpression
+    | expression  (SP)? '?' expression  (SP)? ':'  (SP)? expression          # TernaryExpression
+
     | literal                                                              # LiteralExpression
     | arrayLiteral                                                         # ArrayLiteralExpression
     | objectLiteral                                                        # ObjectLiteralExpression
+    | identifier                                                           # IdentifierExpression
+    | selector                                                             # SelectorExpression
 
 
-    | '(' singleExpression ')'                                             # ParenthesizedExpression
-    | '?(' singleExpression ')'                                            # FilterExpression
+    | '(' expression ')'                                             # ParenthesizedExpression
+    | '?(' expression ')'                                            # FilterExpression
     ;
 
 arrayLiteral
@@ -105,11 +65,7 @@ arrayLiteral
     ;
 
 elementList
-    : ','*  (SP)? arrayElement? ( (SP)? ','+  (SP)? arrayElement) * ','* // Yes, everything is optional
-    ;
-
-arrayElement
-    : Ellipsis? singleExpression
+    : ','*  (SP)? expression? ( (SP)? ','+  (SP)? expression) * ','* // Yes, everything is optional
     ;
 
 objectLiteral
@@ -117,33 +73,29 @@ objectLiteral
     ;
 
 propertyAssignment
-    : propertyName ':' singleExpression                                  # PropertyExpressionAssignment
-    | '[' singleExpression ']' ':' singleExpression                      # ComputedPropertyExpressionAssignment
-    | Ellipsis? singleExpression                                         # PropertyShorthand
+    : propertyName ':' expression                            # PropertyExpressionAssignment
+    | '[' expression ']' ':' expression                      # ComputedPropertyExpressionAssignment
     ;
 
 propertyName
     : identifier
     | StringLiteral
     | numericLiteral
-    | '[' singleExpression ']'
     ;
 
 
 literal
     : NullLiteral
     | BooleanLiteral
-    | StringLiteral
     | numericLiteral
+    | StringLiteral
     ;
 
 
 identifier
     : Identifier
-    | '@'
     ;
 
-Identifier: IdentifierStart IdentifierPart*;
 
 
 numericLiteral
@@ -159,7 +111,6 @@ NullLiteral: 'null';
 BooleanLiteral: 'true' | 'false';
 DecimalLiteral:
     DecimalIntegerLiteral '.' [0-9] [0-9_]* ExponentPart?
-    | '.' [0-9] [0-9_]* ExponentPart?
     | DecimalIntegerLiteral ExponentPart?
 ;
 
@@ -171,9 +122,10 @@ HexIntegerLiteral    : '0' [xX] [0-9a-fA-F] HexDigit*;
 OctalIntegerLiteral2 : '0' [oO] [0-7] [_0-7]*;
 BinaryIntegerLiteral : '0' [bB] [01] [_01]*;
 
-In         : 'in';
 
 SP: [ \n\t\r]+;
+
+Identifier: IdentifierStart IdentifierPart*;
 
 
 fragment ExponentPart: [eE] [+-]? [0-9_]+;
@@ -204,4 +156,4 @@ fragment HexDigit: [_0-9a-fA-F];
 fragment NonEscapeCharacter: ~['"\\bfnrtv0-9xu\r\n];
 fragment LineContinuation: '\\' [\r\n\u2028\u2029]+;
 fragment IdentifierStart: [\p{L}] | [$_] | '\\' UnicodeEscapeSequence;
-fragment IdentifierPart: IdentifierStart | [\p{Mn}] | [\p{Nd}] | [\p{Pc}] | '\u200C' | '\u200D';
+fragment IdentifierPart: IdentifierStart | '-' | [\p{Mn}] | [\p{Nd}] | [\p{Pc}] | '\u200C' | '\u200D';

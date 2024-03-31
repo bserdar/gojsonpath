@@ -1,8 +1,8 @@
-// Code generated from Jsonpath.g4 by ANTLR 4.9. DO NOT EDIT.
+// Code generated from Jsonpath.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package parser // Jsonpath
 
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import "github.com/antlr4-go/antlr/v4"
 
 // JsonpathListener is a complete listener for a parse tree produced by JsonpathParser.
 type JsonpathListener interface {
@@ -11,44 +11,17 @@ type JsonpathListener interface {
 	// EnterPath is called when entering the path production.
 	EnterPath(c *PathContext)
 
-	// EnterRoot_selector is called when entering the root_selector production.
-	EnterRoot_selector(c *Root_selectorContext)
-
-	// EnterCurrent_element_selector is called when entering the current_element_selector production.
-	EnterCurrent_element_selector(c *Current_element_selectorContext)
-
-	// EnterChild_selector is called when entering the child_selector production.
-	EnterChild_selector(c *Child_selectorContext)
-
-	// EnterRecursive_descent is called when entering the recursive_descent production.
-	EnterRecursive_descent(c *Recursive_descentContext)
-
-	// EnterPath_element is called when entering the path_element production.
-	EnterPath_element(c *Path_elementContext)
-
-	// EnterBracketed_selector is called when entering the bracketed_selector production.
-	EnterBracketed_selector(c *Bracketed_selectorContext)
-
-	// EnterUnion is called when entering the union production.
-	EnterUnion(c *UnionContext)
-
-	// EnterUnionPart is called when entering the unionPart production.
-	EnterUnionPart(c *UnionPartContext)
-
-	// EnterSlice is called when entering the slice production.
-	EnterSlice(c *SliceContext)
-
 	// EnterSelector is called when entering the selector production.
 	EnterSelector(c *SelectorContext)
 
 	// EnterArguments is called when entering the arguments production.
 	EnterArguments(c *ArgumentsContext)
 
-	// EnterArgument is called when entering the argument production.
-	EnterArgument(c *ArgumentContext)
+	// EnterSlice is called when entering the slice production.
+	EnterSlice(c *SliceContext)
 
-	// EnterExpressionSequence is called when entering the expressionSequence production.
-	EnterExpressionSequence(c *ExpressionSequenceContext)
+	// EnterIndexExpression is called when entering the indexExpression production.
+	EnterIndexExpression(c *IndexExpressionContext)
 
 	// EnterTernaryExpression is called when entering the TernaryExpression production.
 	EnterTernaryExpression(c *TernaryExpressionContext)
@@ -74,14 +47,17 @@ type JsonpathListener interface {
 	// EnterNotExpression is called when entering the NotExpression production.
 	EnterNotExpression(c *NotExpressionContext)
 
+	// EnterSelectorExpression is called when entering the SelectorExpression production.
+	EnterSelectorExpression(c *SelectorExpressionContext)
+
+	// EnterRecursiveDescentTermExpression is called when entering the RecursiveDescentTermExpression production.
+	EnterRecursiveDescentTermExpression(c *RecursiveDescentTermExpressionContext)
+
 	// EnterArgumentsExpression is called when entering the ArgumentsExpression production.
 	EnterArgumentsExpression(c *ArgumentsExpressionContext)
 
 	// EnterUnaryMinusExpression is called when entering the UnaryMinusExpression production.
 	EnterUnaryMinusExpression(c *UnaryMinusExpressionContext)
-
-	// EnterPathExpression is called when entering the PathExpression production.
-	EnterPathExpression(c *PathExpressionContext)
 
 	// EnterUnaryPlusExpression is called when entering the UnaryPlusExpression production.
 	EnterUnaryPlusExpression(c *UnaryPlusExpressionContext)
@@ -107,6 +83,9 @@ type JsonpathListener interface {
 	// EnterRelationalExpression is called when entering the RelationalExpression production.
 	EnterRelationalExpression(c *RelationalExpressionContext)
 
+	// EnterRecursiveDescentExpression is called when entering the RecursiveDescentExpression production.
+	EnterRecursiveDescentExpression(c *RecursiveDescentExpressionContext)
+
 	// EnterBitNotExpression is called when entering the BitNotExpression production.
 	EnterBitNotExpression(c *BitNotExpressionContext)
 
@@ -128,17 +107,14 @@ type JsonpathListener interface {
 	// EnterBitOrExpression is called when entering the BitOrExpression production.
 	EnterBitOrExpression(c *BitOrExpressionContext)
 
-	// EnterCoalesceExpression is called when entering the CoalesceExpression production.
-	EnterCoalesceExpression(c *CoalesceExpressionContext)
+	// EnterRecursiveDescentMemberIndexExpression is called when entering the RecursiveDescentMemberIndexExpression production.
+	EnterRecursiveDescentMemberIndexExpression(c *RecursiveDescentMemberIndexExpressionContext)
 
 	// EnterArrayLiteral is called when entering the arrayLiteral production.
 	EnterArrayLiteral(c *ArrayLiteralContext)
 
 	// EnterElementList is called when entering the elementList production.
 	EnterElementList(c *ElementListContext)
-
-	// EnterArrayElement is called when entering the arrayElement production.
-	EnterArrayElement(c *ArrayElementContext)
 
 	// EnterObjectLiteral is called when entering the objectLiteral production.
 	EnterObjectLiteral(c *ObjectLiteralContext)
@@ -148,9 +124,6 @@ type JsonpathListener interface {
 
 	// EnterComputedPropertyExpressionAssignment is called when entering the ComputedPropertyExpressionAssignment production.
 	EnterComputedPropertyExpressionAssignment(c *ComputedPropertyExpressionAssignmentContext)
-
-	// EnterPropertyShorthand is called when entering the PropertyShorthand production.
-	EnterPropertyShorthand(c *PropertyShorthandContext)
 
 	// EnterPropertyName is called when entering the propertyName production.
 	EnterPropertyName(c *PropertyNameContext)
@@ -167,44 +140,17 @@ type JsonpathListener interface {
 	// ExitPath is called when exiting the path production.
 	ExitPath(c *PathContext)
 
-	// ExitRoot_selector is called when exiting the root_selector production.
-	ExitRoot_selector(c *Root_selectorContext)
-
-	// ExitCurrent_element_selector is called when exiting the current_element_selector production.
-	ExitCurrent_element_selector(c *Current_element_selectorContext)
-
-	// ExitChild_selector is called when exiting the child_selector production.
-	ExitChild_selector(c *Child_selectorContext)
-
-	// ExitRecursive_descent is called when exiting the recursive_descent production.
-	ExitRecursive_descent(c *Recursive_descentContext)
-
-	// ExitPath_element is called when exiting the path_element production.
-	ExitPath_element(c *Path_elementContext)
-
-	// ExitBracketed_selector is called when exiting the bracketed_selector production.
-	ExitBracketed_selector(c *Bracketed_selectorContext)
-
-	// ExitUnion is called when exiting the union production.
-	ExitUnion(c *UnionContext)
-
-	// ExitUnionPart is called when exiting the unionPart production.
-	ExitUnionPart(c *UnionPartContext)
-
-	// ExitSlice is called when exiting the slice production.
-	ExitSlice(c *SliceContext)
-
 	// ExitSelector is called when exiting the selector production.
 	ExitSelector(c *SelectorContext)
 
 	// ExitArguments is called when exiting the arguments production.
 	ExitArguments(c *ArgumentsContext)
 
-	// ExitArgument is called when exiting the argument production.
-	ExitArgument(c *ArgumentContext)
+	// ExitSlice is called when exiting the slice production.
+	ExitSlice(c *SliceContext)
 
-	// ExitExpressionSequence is called when exiting the expressionSequence production.
-	ExitExpressionSequence(c *ExpressionSequenceContext)
+	// ExitIndexExpression is called when exiting the indexExpression production.
+	ExitIndexExpression(c *IndexExpressionContext)
 
 	// ExitTernaryExpression is called when exiting the TernaryExpression production.
 	ExitTernaryExpression(c *TernaryExpressionContext)
@@ -230,14 +176,17 @@ type JsonpathListener interface {
 	// ExitNotExpression is called when exiting the NotExpression production.
 	ExitNotExpression(c *NotExpressionContext)
 
+	// ExitSelectorExpression is called when exiting the SelectorExpression production.
+	ExitSelectorExpression(c *SelectorExpressionContext)
+
+	// ExitRecursiveDescentTermExpression is called when exiting the RecursiveDescentTermExpression production.
+	ExitRecursiveDescentTermExpression(c *RecursiveDescentTermExpressionContext)
+
 	// ExitArgumentsExpression is called when exiting the ArgumentsExpression production.
 	ExitArgumentsExpression(c *ArgumentsExpressionContext)
 
 	// ExitUnaryMinusExpression is called when exiting the UnaryMinusExpression production.
 	ExitUnaryMinusExpression(c *UnaryMinusExpressionContext)
-
-	// ExitPathExpression is called when exiting the PathExpression production.
-	ExitPathExpression(c *PathExpressionContext)
 
 	// ExitUnaryPlusExpression is called when exiting the UnaryPlusExpression production.
 	ExitUnaryPlusExpression(c *UnaryPlusExpressionContext)
@@ -263,6 +212,9 @@ type JsonpathListener interface {
 	// ExitRelationalExpression is called when exiting the RelationalExpression production.
 	ExitRelationalExpression(c *RelationalExpressionContext)
 
+	// ExitRecursiveDescentExpression is called when exiting the RecursiveDescentExpression production.
+	ExitRecursiveDescentExpression(c *RecursiveDescentExpressionContext)
+
 	// ExitBitNotExpression is called when exiting the BitNotExpression production.
 	ExitBitNotExpression(c *BitNotExpressionContext)
 
@@ -284,17 +236,14 @@ type JsonpathListener interface {
 	// ExitBitOrExpression is called when exiting the BitOrExpression production.
 	ExitBitOrExpression(c *BitOrExpressionContext)
 
-	// ExitCoalesceExpression is called when exiting the CoalesceExpression production.
-	ExitCoalesceExpression(c *CoalesceExpressionContext)
+	// ExitRecursiveDescentMemberIndexExpression is called when exiting the RecursiveDescentMemberIndexExpression production.
+	ExitRecursiveDescentMemberIndexExpression(c *RecursiveDescentMemberIndexExpressionContext)
 
 	// ExitArrayLiteral is called when exiting the arrayLiteral production.
 	ExitArrayLiteral(c *ArrayLiteralContext)
 
 	// ExitElementList is called when exiting the elementList production.
 	ExitElementList(c *ElementListContext)
-
-	// ExitArrayElement is called when exiting the arrayElement production.
-	ExitArrayElement(c *ArrayElementContext)
 
 	// ExitObjectLiteral is called when exiting the objectLiteral production.
 	ExitObjectLiteral(c *ObjectLiteralContext)
@@ -304,9 +253,6 @@ type JsonpathListener interface {
 
 	// ExitComputedPropertyExpressionAssignment is called when exiting the ComputedPropertyExpressionAssignment production.
 	ExitComputedPropertyExpressionAssignment(c *ComputedPropertyExpressionAssignmentContext)
-
-	// ExitPropertyShorthand is called when exiting the PropertyShorthand production.
-	ExitPropertyShorthand(c *PropertyShorthandContext)
 
 	// ExitPropertyName is called when exiting the propertyName production.
 	ExitPropertyName(c *PropertyNameContext)
