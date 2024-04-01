@@ -630,13 +630,21 @@ func isPathExpression(ctx parser.IExpressionContext) bool {
 }
 
 type methodCallExpression struct {
-	path   Path
-	expr   expression
-	method string
-	args   []expression
+	receiver expression
+	name     string
+	args     []expression
 }
 
 func (expr methodCallExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
+	return exprValue{}, nil
+}
+
+type functionCallExpression struct {
+	name string
+	args []expression
+}
+
+func (expr functionCallExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
 	return exprValue{}, nil
 }
 
@@ -658,6 +666,8 @@ func astExpression(ctx parser.IExpressionContext, inPath bool) (expression, erro
 			return filterExpression{
 				expr: x,
 			}, nil
+		case *parser.ArgumentsExpressionContext:
+			return astArgumentExpression(expr)
 		}
 	} else {
 		switch expr := ctx.(type) {
@@ -934,34 +944,7 @@ func astExpression(ctx parser.IExpressionContext, inPath bool) (expression, erro
 			}, nil
 
 		case *parser.ArgumentsExpressionContext:
-			// methodName := expr.Identifier().(*parser.IdentifierContext).GetText()
-
-			// args, err := astElementList(expr.ElementList().(*parser.ElementListContext))
-			// if err != nil {
-			// 	return nil, err
-			// }
-			// // Determine if the expr is a path expression or not. If so, switch to path parser mode
-			// e := expr.Expression()
-			// if isPathExpression(e) {
-			// 	p, err := astPath(e)
-			// 	if err != nil {
-			// 		return nil, err
-			// 	}
-			// 	return methodCallExpression{
-			// 		path:   p,
-			// 		method: methodName,
-			// 		args:   args,
-			// 	}, nil
-			// }
-			// ex, err := astExpression(e, true)
-			// if err != nil {
-			// 	return nil, err
-			// }
-			// return methodCallExpression{
-			// 	expr:   ex,
-			// 	method: methodName,
-			// 	args:   args,
-			// }, nil
+			return astArgumentExpression(expr)
 
 			// 	case *parser.PathExpressionContext:
 			// 	case *parser.IdentifierExpressionContext:
@@ -1117,7 +1100,9 @@ func unescapeString(in string) string {
 	return string(out)
 }
 
-func astElementList(ctx *parser.ElementListContext) ([]expression, error) {
+func astElementList(ctx interface {
+	AllExpression() []parser.IExpressionContext
+}) ([]expression, error) {
 	list := ctx.AllExpression()
 	arr := make([]expression, 0, len(list))
 	for _, e := range list {
@@ -1128,4 +1113,65 @@ func astElementList(ctx *parser.ElementListContext) ([]expression, error) {
 		arr = append(arr, elem)
 	}
 	return arr, nil
+}
+
+func astArgumentExpression(ctx *parser.ArgumentsExpressionContext) (expression, error) {
+	args, err := astElementList(ctx.Arguments().(*parser.ArgumentsContext))
+	if err != nil {
+		return nil, err
+	}
+	e := ctx.Expression()
+	var name string
+	var fCall bool
+	var receiver expression
+	if isPathExpression(e) {
+		path, err := astPath(e)
+		if err != nil {
+			return nil, err
+		}
+		// Last component of path is method
+		if len(path.selectors) < 2 {
+			return nil, ErrInvalidAST
+		}
+		if key, ok := path.selectors[len(path.selectors)-1].(*keySelector); ok {
+			name = key.key
+			fCall = false
+			path.selectors = path.selectors[:len(path.selectors)-1]
+			path.recursive = path.recursive[:len(path.recursive)-1]
+			receiver = &pathExpression{
+				path: path,
+			}
+		}
+	} else {
+		// Function call?
+		if id, ok := e.(*parser.IdentifierExpressionContext); ok {
+			name = id.GetText()
+			fCall = true
+		} else {
+			// Method call without a path?
+			if chain, ok := e.(*parser.ChainExpressionContext); ok {
+				exprs := chain.AllExpression()
+				name = exprs[1].GetText()
+				var err error
+				receiver, err = astExpression(exprs[0], false)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+	if len(name) == 0 {
+		return nil, ErrInvalidAST
+	}
+	if fCall {
+		return functionCallExpression{
+			name: name,
+			args: args,
+		}, nil
+	}
+	return methodCallExpression{
+		name:     name,
+		args:     args,
+		receiver: receiver,
+	}, nil
 }
