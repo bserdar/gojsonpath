@@ -10,12 +10,13 @@ var (
 	ErrInvalidAST       = errors.New("Invalid AST")
 )
 
-// A Path addresses a set of locations on a hierarchical object
+// A Path is a compiled JSONPath object.
 type Path struct {
 	selectors []selector
 	recursive []bool
 }
 
+// An Element is a node in a document
 type Element struct {
 	Node any
 	Type NodeType
@@ -30,6 +31,7 @@ type selector interface {
 	selectChildNodes(*context) (children []Element, canSelect bool)
 }
 
+// Finds all document elements addressed by the path
 func Find(doc DocModel, path Path) ([]any, error) {
 	results := make([]any, 0)
 	err := Search(doc, path, func(el []Element) {
@@ -38,6 +40,8 @@ func Find(doc DocModel, path Path) ([]any, error) {
 	return results, err
 }
 
+// Search iterates all document nodes depth-first, and calls `capture`
+// for those document nodes that `path` matches.
 func Search(doc DocModel, path Path, capture func([]Element)) error {
 	if len(path.selectors) == 0 {
 		return nil

@@ -8,9 +8,11 @@ const (
 	ArrayNode
 )
 
-// DocModel represents the underlying hierarchical document model
+// DocModel represents the underlying hierarchical document model.
 type DocModel interface {
+	// Return the root node
 	Root() any
+	// Return the type of the given node
 	Type(any) NodeType
 
 	// Works on object and array nodes

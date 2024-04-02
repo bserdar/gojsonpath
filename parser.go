@@ -27,13 +27,30 @@ func (lst *errorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymb
 	}
 }
 
+// Parse JSON path expression and return the compiled path.
+// The JSON path expression follows the syntax given in
+//
+//	https://goessner.net/articles/JsonPath/
+//
+// with a few exceptions:
+//
+//   - If a path component is a it should be a valid identifier or
+//     number. If that is not the case, it should be a string literal,
+//     that is, quoted.
+//
+//     For example: `$.dash-key` is invalid. You must quote it:
+//     `$."dash-key"` or `$.'dash-key'`.
+//
+//   - Function and method calls must have a possibly empty argument
+//     list.
+//
+//     For example: `length(@)` and `@.length()` are valid, but
+//     `@.length` will look for a `length` key under the current node.
+//
+//   - Decimals cannot start with a period, that is `.5` is
+//     invalid. Use `0.5` instead. Decimal starting with a period
+//     confuses the lexer.
 func Parse(input string) (Path, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("PANIC:", input)
-			fmt.Println(r)
-		}
-	}()
 	pr := getParser(input)
 	pr.RemoveErrorListeners()
 	errListener := errorListener{}
