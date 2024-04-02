@@ -16,6 +16,59 @@ type Path struct {
 	recursive []bool
 }
 
+// Append paths one after the other
+func Append(p ...Path) Path {
+	ret := Path{}
+	for _, x := range p {
+		ret.selectors = append(ret.selectors, x.selectors...)
+		ret.recursive = append(ret.recursive, x.recursive...)
+	}
+	return ret
+}
+
+// Common path definitions
+var (
+	SelectRootPath = Path{
+		selectors: []selector{rootElementSelector{}},
+		recursive: []bool{false},
+	}
+	SelectCurrentPath = Path{
+		selectors: []selector{currentElementSelector{}},
+		recursive: []bool{false},
+	}
+	WildcardPath = Path{
+		selectors: []selector{wildcardSelector{}},
+		recursive: []bool{false},
+	}
+)
+
+// Returns a new path that is a copy of p but recursively descends
+func RecursiveDescent(p Path) Path {
+	ret := Path{
+		selectors: p.selectors,
+		recursive: make([]bool, len(p.recursive)),
+	}
+	copy(ret.recursive, p.recursive)
+	ret.recursive[len(ret.recursive)-1] = true
+	return ret
+}
+
+// Returns a path that selects a key
+func KeySelectorPath(key string) Path {
+	return Path{
+		selectors: []selector{&keySelector{key: key}},
+		recursive: []bool{false},
+	}
+}
+
+// Returns a path that selects an index
+func IndexSelectorPath(index int) Path {
+	return Path{
+		selectors: []selector{&keySelector{expr: exprValue{value: index}}},
+		recursive: []bool{false},
+	}
+}
+
 // An Element is a node in a document
 type Element struct {
 	Node any
