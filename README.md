@@ -53,13 +53,17 @@ err := gojsonpath.Search(doc,path,func(elem []gojsonpath.Element) {
 ## Document model
 
 This implementation of JSONPath works with a flexible document
-model. To use the faniliar `map[string]any` implementation of JSON,
+model. To use the familiar `map[string]any` implementation of JSON,
 use:
 
 ``` go
+var jsonDoc any
+json.Unmarshal(jsonBytes,&jsonDoc)
 doc := gojsonpath.MapModel{Doc:jsonDoc}
 ```
 
 The `DocModel` interface provides a view of the underlying model, so
-the JSON document does not have to be a `map[string]any`.
+the JSON document does not have to be a `map[string]any`. Any
+hierarchical document model supporting key-value, array, and value
+nodes can be used.
 
