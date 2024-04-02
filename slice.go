@@ -35,11 +35,11 @@ func normalizeIndex(index any, len int) int {
 	return 0
 }
 
-func (sel *indexSelector) match(doc DocModel, el []Element) bool {
-	if !isArrayElement(el) {
+func (sel *indexSelector) match(ctx *context) bool {
+	if !isArrayElement(ctx.path) {
 		return false
 	}
-	ivalue, err := sel.index.evaluate(doc, el)
+	ivalue, err := sel.index.evaluate(ctx)
 	if err != nil {
 		return false
 	}
@@ -48,21 +48,21 @@ func (sel *indexSelector) match(doc DocModel, el []Element) bool {
 		return false
 	}
 	if index < 0 {
-		n := doc.Len(el[len(el)-1].Node)
+		n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
 		index := normalizeIndex(index, n)
 		if index < 0 {
 			return false
 		}
 	}
-	return el[len(el)-1].Index == index
+	return ctx.path[len(ctx.path)-1].Index == index
 }
 
-func (sel *indexSelector) selectChildNodes(doc DocModel, el []Element) (children []Element, canSelect bool) {
-	if !isArray(el) {
+func (sel *indexSelector) selectChildNodes(ctx *context) (children []Element, canSelect bool) {
+	if !isArray(ctx.path) {
 		return nil, true
 	}
-	n := doc.Len(el[len(el)-1].Node)
-	ivalue, err := sel.index.evaluate(doc, el)
+	n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
+	ivalue, err := sel.index.evaluate(ctx)
 	if err != nil {
 		return nil, false
 	}
@@ -73,11 +73,11 @@ func (sel *indexSelector) selectChildNodes(doc DocModel, el []Element) (children
 	if index >= n {
 		return nil, true
 	}
-	node := doc.Elem(el[len(el)-1].Node, index)
+	node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, index)
 	return []Element{
 		{
 			Node:  node,
-			Type:  doc.Type(node),
+			Type:  ctx.doc.Type(node),
 			Index: index,
 		},
 	}, true
@@ -89,10 +89,10 @@ type rangeSelector struct {
 	end   expression
 }
 
-func getRange(doc DocModel, el []Element, start, end expression, len int) (from, to int) {
+func getRange(ctx *context, start, end expression, len int) (from, to int) {
 	var s int
 	if start != nil {
-		ivalue, _ := start.evaluate(doc, el)
+		ivalue, _ := start.evaluate(ctx)
 		s = normalizeIndex(ivalue.value, len)
 	}
 	if s < 0 {
@@ -100,7 +100,7 @@ func getRange(doc DocModel, el []Element, start, end expression, len int) (from,
 	}
 	var e int
 	if end != nil {
-		ivalue, _ := end.evaluate(doc, el)
+		ivalue, _ := end.evaluate(ctx)
 		e = normalizeIndex(ivalue.value, len)
 	} else {
 		e = len
@@ -111,31 +111,31 @@ func getRange(doc DocModel, el []Element, start, end expression, len int) (from,
 	return s, e
 }
 
-func (sel *rangeSelector) match(doc DocModel, el []Element) bool {
-	if !isArrayElement(el) {
+func (sel *rangeSelector) match(ctx *context) bool {
+	if !isArrayElement(ctx.path) {
 		return false
 	}
-	n := doc.Len(el[len(el)-2].Node)
-	start, end := getRange(doc, el, sel.start, sel.end, n)
-	index := el[len(el)-1].Index
+	n := ctx.doc.Len(ctx.path[len(ctx.path)-2].Node)
+	start, end := getRange(ctx, sel.start, sel.end, n)
+	index := ctx.path[len(ctx.path)-1].Index
 	return index >= start && index < end
 }
 
-func (sel *rangeSelector) selectChildNodes(doc DocModel, el []Element) (children []Element, canSelect bool) {
-	if !isArray(el) {
+func (sel *rangeSelector) selectChildNodes(ctx *context) (children []Element, canSelect bool) {
+	if !isArray(ctx.path) {
 		return nil, true
 	}
-	n := doc.Len(el[len(el)-1].Node)
-	start, end := getRange(doc, el, sel.start, sel.end, n)
+	n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
+	start, end := getRange(ctx, sel.start, sel.end, n)
 	if start < 0 || start >= end {
 		return nil, true
 	}
 	ret := make([]Element, 0)
 	for i := start; i < end && i < n; i++ {
-		node := doc.Elem(el[len(el)-1].Node, i)
+		node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, i)
 		ret = append(ret, Element{
 			Node:  node,
-			Type:  doc.Type(node),
+			Type:  ctx.doc.Type(node),
 			Index: i,
 		})
 	}
@@ -148,16 +148,16 @@ type sliceSelector struct {
 	step  expression
 }
 
-func (sel *sliceSelector) match(doc DocModel, el []Element) bool {
-	if !isArrayElement(el) {
+func (sel *sliceSelector) match(ctx *context) bool {
+	if !isArrayElement(ctx.path) {
 		return false
 	}
-	n := doc.Len(el[len(el)-2].Node)
-	start, end := getRange(doc, el, sel.start, sel.end, n)
+	n := ctx.doc.Len(ctx.path[len(ctx.path)-2].Node)
+	start, end := getRange(ctx, sel.start, sel.end, n)
 	if start < 0 {
 		return false
 	}
-	index := el[len(el)-1].Index
+	index := ctx.path[len(ctx.path)-1].Index
 	if index < start || index >= end {
 		return false
 	}
@@ -168,7 +168,7 @@ func (sel *sliceSelector) match(doc DocModel, el []Element) bool {
 		step = -1
 	}
 	if sel.step != nil {
-		ivalue, err := sel.step.evaluate(doc, el)
+		ivalue, err := sel.step.evaluate(ctx)
 		if err != nil {
 			return false
 		}
@@ -193,12 +193,12 @@ func (sel *sliceSelector) match(doc DocModel, el []Element) bool {
 	return (start-index)%(-step) == 0
 }
 
-func (sel *sliceSelector) selectChildNodes(doc DocModel, el []Element) (children []Element, canSelect bool) {
-	if !isArray(el) {
+func (sel *sliceSelector) selectChildNodes(ctx *context) (children []Element, canSelect bool) {
+	if !isArray(ctx.path) {
 		return nil, true
 	}
-	n := doc.Len(el[len(el)-1].Node)
-	start, end := getRange(doc, el, sel.start, sel.end, n)
+	n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
+	start, end := getRange(ctx, sel.start, sel.end, n)
 	if start < 0 {
 		return nil, true
 	}
@@ -209,7 +209,7 @@ func (sel *sliceSelector) selectChildNodes(doc DocModel, el []Element) (children
 		step = -1
 	}
 	if sel.step != nil {
-		ivalue, err := sel.step.evaluate(doc, el)
+		ivalue, err := sel.step.evaluate(ctx)
 		if err != nil {
 			return nil, false
 		}
@@ -229,10 +229,10 @@ func (sel *sliceSelector) selectChildNodes(doc DocModel, el []Element) (children
 		}
 		ret = make([]Element, 0)
 		for i := start; i < end && i < n; i += step {
-			node := doc.Elem(el[len(el)-1].Node, i)
+			node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, i)
 			ret = append(ret, Element{
 				Node:  node,
-				Type:  doc.Type(node),
+				Type:  ctx.doc.Type(node),
 				Index: i,
 			})
 		}
@@ -246,10 +246,10 @@ func (sel *sliceSelector) selectChildNodes(doc DocModel, el []Element) (children
 	}
 	ret = make([]Element, 0)
 	for i := start; i > end; i += step {
-		node := doc.Elem(el[len(el)-1].Node, i)
+		node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, i)
 		ret = append(ret, Element{
 			Node:  node,
-			Type:  doc.Type(node),
+			Type:  ctx.doc.Type(node),
 			Index: i,
 		})
 	}

@@ -11,15 +11,20 @@ import (
 	"github.com/bserdar/gojsonpath/parser"
 )
 
+type context struct {
+	doc  DocModel
+	path []Element
+}
+
 type expression interface {
-	evaluate(DocModel, []Element) (exprValue, error)
+	evaluate(*context) (exprValue, error)
 }
 
 type exprValue struct {
 	value any
 }
 
-func (c exprValue) evaluate(DocModel, []Element) (exprValue, error) { return c, nil }
+func (c exprValue) evaluate(*context) (exprValue, error) { return c, nil }
 
 // Return an int, float, bool, or string as int or float64. If not convertable, returns nil
 func valueAsNumber(value any) any {
@@ -89,8 +94,8 @@ type unaryMinusExpression struct {
 	expr expression
 }
 
-func (u unaryMinusExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	c, err := u.expr.evaluate(doc, el)
+func (u unaryMinusExpression) evaluate(ctx *context) (exprValue, error) {
+	c, err := u.expr.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -111,8 +116,8 @@ type filterExpression struct {
 	expr expression
 }
 
-func (expr filterExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	v, err := expr.expr.evaluate(doc, el)
+func (expr filterExpression) evaluate(ctx *context) (exprValue, error) {
+	v, err := expr.expr.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -123,8 +128,8 @@ type notExpression struct {
 	expr expression
 }
 
-func (expr notExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	v, err := expr.expr.evaluate(doc, el)
+func (expr notExpression) evaluate(ctx *context) (exprValue, error) {
+	v, err := expr.expr.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -136,12 +141,12 @@ type equalityExpression struct {
 	right expression
 }
 
-func (expr equalityExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	left, err := expr.left.evaluate(doc, el)
+func (expr equalityExpression) evaluate(ctx *context) (exprValue, error) {
+	left, err := expr.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	right, err := expr.right.evaluate(doc, el)
+	right, err := expr.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -180,12 +185,12 @@ type equality3Expression struct {
 	right expression
 }
 
-func (expr equality3Expression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	left, err := expr.left.evaluate(doc, el)
+func (expr equality3Expression) evaluate(ctx *context) (exprValue, error) {
+	left, err := expr.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	right, err := expr.right.evaluate(doc, el)
+	right, err := expr.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -217,10 +222,10 @@ type pathExpression struct {
 	path Path
 }
 
-func (expr pathExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
+func (expr pathExpression) evaluate(ctx *context) (exprValue, error) {
 	result := make([]any, 0)
-	err := evaluateAt(doc, expr.path, 0, el, func(item Element) {
-		result = append(result, item.Node)
+	err := evaluateAt(ctx, expr.path, 0, func(item []Element) {
+		result = append(result, item[len(item)-1].Node)
 	})
 	if err != nil {
 		return exprValue{}, err
@@ -235,15 +240,15 @@ type landExpression struct {
 	left, right expression
 }
 
-func (expr landExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	v, err := expr.left.evaluate(doc, el)
+func (expr landExpression) evaluate(ctx *context) (exprValue, error) {
+	v, err := expr.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
 	if !v.asBool() {
 		return exprValue{value: false}, nil
 	}
-	v, err = expr.right.evaluate(doc, el)
+	v, err = expr.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -254,15 +259,15 @@ type lorExpression struct {
 	left, right expression
 }
 
-func (expr lorExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	v, err := expr.left.evaluate(doc, el)
+func (expr lorExpression) evaluate(ctx *context) (exprValue, error) {
+	v, err := expr.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
 	if v.asBool() {
 		return exprValue{value: true}, nil
 	}
-	v, err = expr.right.evaluate(doc, el)
+	v, err = expr.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -270,12 +275,12 @@ func (expr lorExpression) evaluate(doc DocModel, el []Element) (exprValue, error
 }
 
 // returns comparison result (-1,0,1), whether or not comparison is valid, and error
-func compareExpr(doc DocModel, el []Element, left, right expression) (int, bool, error) {
-	l, err := left.evaluate(doc, el)
+func compareExpr(ctx *context, left, right expression) (int, bool, error) {
+	l, err := left.evaluate(ctx)
 	if err != nil {
 		return 0, false, err
 	}
-	r, err := right.evaluate(doc, el)
+	r, err := right.evaluate(ctx)
 	if err != nil {
 		return 0, false, err
 	}
@@ -341,23 +346,23 @@ func compareExpr(doc DocModel, el []Element, left, right expression) (int, bool,
 }
 
 type relationalExpression struct {
-	op func(DocModel, []Element) (exprValue, error)
+	op func(*context) (exprValue, error)
 }
 
-func (rel relationalExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	return rel.op(doc, el)
+func (rel relationalExpression) evaluate(ctx *context) (exprValue, error) {
+	return rel.op(ctx)
 }
 
 type mulExpression struct {
 	left, right expression
 }
 
-func (mul mulExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	l, err := mul.left.evaluate(doc, el)
+func (mul mulExpression) evaluate(ctx *context) (exprValue, error) {
+	l, err := mul.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	r, err := mul.right.evaluate(doc, el)
+	r, err := mul.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -383,12 +388,12 @@ type divExpression struct {
 	left, right expression
 }
 
-func (div divExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	l, err := div.left.evaluate(doc, el)
+func (div divExpression) evaluate(ctx *context) (exprValue, error) {
+	l, err := div.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	r, err := div.right.evaluate(doc, el)
+	r, err := div.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -428,12 +433,12 @@ type modExpression struct {
 	left, right expression
 }
 
-func (mod modExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	l, err := mod.left.evaluate(doc, el)
+func (mod modExpression) evaluate(ctx *context) (exprValue, error) {
+	l, err := mod.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	r, err := mod.right.evaluate(doc, el)
+	r, err := mod.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -473,12 +478,12 @@ type powExpression struct {
 	left, right expression
 }
 
-func (pow powExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	l, err := pow.left.evaluate(doc, el)
+func (pow powExpression) evaluate(ctx *context) (exprValue, error) {
+	l, err := pow.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	r, err := pow.right.evaluate(doc, el)
+	r, err := pow.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -506,12 +511,12 @@ type addExpression struct {
 	left, right expression
 }
 
-func (expr addExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	l, err := expr.left.evaluate(doc, el)
+func (expr addExpression) evaluate(ctx *context) (exprValue, error) {
+	l, err := expr.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	r, err := expr.right.evaluate(doc, el)
+	r, err := expr.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -539,12 +544,12 @@ type subExpression struct {
 	left, right expression
 }
 
-func (expr subExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	l, err := expr.left.evaluate(doc, el)
+func (expr subExpression) evaluate(ctx *context) (exprValue, error) {
+	l, err := expr.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	r, err := expr.right.evaluate(doc, el)
+	r, err := expr.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -572,10 +577,10 @@ type arrayExpression struct {
 	arr []expression
 }
 
-func (expr arrayExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
+func (expr arrayExpression) evaluate(ctx *context) (exprValue, error) {
 	ret := make([]any, 0, len(expr.arr))
 	for _, x := range expr.arr {
-		v, err := x.evaluate(doc, el)
+		v, err := x.evaluate(ctx)
 		if err != nil {
 			return exprValue{}, err
 		}
@@ -589,12 +594,12 @@ type inExpression struct {
 	right expression
 }
 
-func (expr inExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	l, err := expr.left.evaluate(doc, el)
+func (expr inExpression) evaluate(ctx *context) (exprValue, error) {
+	l, err := expr.left.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
-	r, err := expr.right.evaluate(doc, el)
+	r, err := expr.right.evaluate(ctx)
 	if err != nil {
 		return exprValue{}, err
 	}
@@ -635,8 +640,29 @@ type methodCallExpression struct {
 	args     []expression
 }
 
-func (expr methodCallExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
-	return exprValue{}, nil
+func (expr methodCallExpression) evaluate(ctx *context) (exprValue, error) {
+	receiver, err := expr.receiver.evaluate(ctx)
+	if err != nil {
+		return exprValue{}, err
+	}
+	funcCall := predefinedFunctions[expr.name]
+	if funcCall == nil {
+		return exprValue{}, fmt.Errorf("Function not found: %s", expr.name)
+	}
+	args := make([]any, 0, len(expr.args)+1)
+	args = append(args, receiver.value)
+	for _, x := range expr.args {
+		e, err := x.evaluate(ctx)
+		if err != nil {
+			return exprValue{}, err
+		}
+		args = append(args, e.value)
+	}
+	val, err := funcCall(args)
+	if err != nil {
+		return exprValue{}, err
+	}
+	return exprValue{value: val}, nil
 }
 
 type functionCallExpression struct {
@@ -644,7 +670,7 @@ type functionCallExpression struct {
 	args []expression
 }
 
-func (expr functionCallExpression) evaluate(doc DocModel, el []Element) (exprValue, error) {
+func (expr functionCallExpression) evaluate(ctx *context) (exprValue, error) {
 	return exprValue{}, nil
 }
 
@@ -796,29 +822,29 @@ func astExpression(ctx parser.IExpressionContext, inPath bool) (expression, erro
 			switch op {
 			case "<":
 				return relationalExpression{
-					op: func(doc DocModel, el []Element) (exprValue, error) {
-						res, valid, err := compareExpr(doc, el, expressions[0], expressions[1])
+					op: func(ctx *context) (exprValue, error) {
+						res, valid, err := compareExpr(ctx, expressions[0], expressions[1])
 						return exprValue{value: res < 0 && valid}, err
 					},
 				}, nil
 			case "<=":
 				return relationalExpression{
-					op: func(doc DocModel, el []Element) (exprValue, error) {
-						res, valid, err := compareExpr(doc, el, expressions[0], expressions[1])
+					op: func(ctx *context) (exprValue, error) {
+						res, valid, err := compareExpr(ctx, expressions[0], expressions[1])
 						return exprValue{value: res <= 0 && valid}, err
 					},
 				}, nil
 			case ">":
 				return relationalExpression{
-					op: func(doc DocModel, el []Element) (exprValue, error) {
-						res, valid, err := compareExpr(doc, el, expressions[0], expressions[1])
+					op: func(ctx *context) (exprValue, error) {
+						res, valid, err := compareExpr(ctx, expressions[0], expressions[1])
 						return exprValue{value: res > 0 && valid}, err
 					},
 				}, nil
 			case ">=":
 				return relationalExpression{
-					op: func(doc DocModel, el []Element) (exprValue, error) {
-						res, valid, err := compareExpr(doc, el, expressions[0], expressions[1])
+					op: func(ctx *context) (exprValue, error) {
+						res, valid, err := compareExpr(ctx, expressions[0], expressions[1])
 						return exprValue{value: res >= 0 && valid}, err
 					},
 				}, nil

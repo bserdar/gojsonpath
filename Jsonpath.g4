@@ -47,11 +47,9 @@ expression
     | expression  (SP)? '|'  (SP)? expression                                # BitOrExpression
     | expression (SP)? '&&' (SP)? expression                                 # LogicalAndExpression
     | expression (SP)? '||' (SP)? expression                                 # LogicalOrExpression
-    | expression  (SP)? '?' expression  (SP)? ':'  (SP)? expression          # TernaryExpression
 
     | literal                                                              # LiteralExpression
     | arrayLiteral                                                         # ArrayLiteralExpression
-    | objectLiteral                                                        # ObjectLiteralExpression
     | identifier                                                           # IdentifierExpression
     | selector                                                             # SelectorExpression
 
@@ -66,21 +64,6 @@ arrayLiteral
 
 elementList
     : ','*  (SP)? expression? ( (SP)? ','+  (SP)? expression) * ','* // Yes, everything is optional
-    ;
-
-objectLiteral
-    : '{' (propertyAssignment (',' propertyAssignment)* ','?)? '}'
-    ;
-
-propertyAssignment
-    : propertyName ':' expression                            # PropertyExpressionAssignment
-    | '[' expression ']' ':' expression                      # ComputedPropertyExpressionAssignment
-    ;
-
-propertyName
-    : identifier
-    | StringLiteral
-    | numericLiteral
     ;
 
 

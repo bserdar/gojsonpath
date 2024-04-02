@@ -23,9 +23,6 @@ type JsonpathListener interface {
 	// EnterIndexExpression is called when entering the indexExpression production.
 	EnterIndexExpression(c *IndexExpressionContext)
 
-	// EnterTernaryExpression is called when entering the TernaryExpression production.
-	EnterTernaryExpression(c *TernaryExpressionContext)
-
 	// EnterChainExpression is called when entering the ChainExpression production.
 	EnterChainExpression(c *ChainExpressionContext)
 
@@ -34,9 +31,6 @@ type JsonpathListener interface {
 
 	// EnterPowerExpression is called when entering the PowerExpression production.
 	EnterPowerExpression(c *PowerExpressionContext)
-
-	// EnterObjectLiteralExpression is called when entering the ObjectLiteralExpression production.
-	EnterObjectLiteralExpression(c *ObjectLiteralExpressionContext)
 
 	// EnterInExpression is called when entering the InExpression production.
 	EnterInExpression(c *InExpressionContext)
@@ -116,18 +110,6 @@ type JsonpathListener interface {
 	// EnterElementList is called when entering the elementList production.
 	EnterElementList(c *ElementListContext)
 
-	// EnterObjectLiteral is called when entering the objectLiteral production.
-	EnterObjectLiteral(c *ObjectLiteralContext)
-
-	// EnterPropertyExpressionAssignment is called when entering the PropertyExpressionAssignment production.
-	EnterPropertyExpressionAssignment(c *PropertyExpressionAssignmentContext)
-
-	// EnterComputedPropertyExpressionAssignment is called when entering the ComputedPropertyExpressionAssignment production.
-	EnterComputedPropertyExpressionAssignment(c *ComputedPropertyExpressionAssignmentContext)
-
-	// EnterPropertyName is called when entering the propertyName production.
-	EnterPropertyName(c *PropertyNameContext)
-
 	// EnterLiteral is called when entering the literal production.
 	EnterLiteral(c *LiteralContext)
 
@@ -152,9 +134,6 @@ type JsonpathListener interface {
 	// ExitIndexExpression is called when exiting the indexExpression production.
 	ExitIndexExpression(c *IndexExpressionContext)
 
-	// ExitTernaryExpression is called when exiting the TernaryExpression production.
-	ExitTernaryExpression(c *TernaryExpressionContext)
-
 	// ExitChainExpression is called when exiting the ChainExpression production.
 	ExitChainExpression(c *ChainExpressionContext)
 
@@ -163,9 +142,6 @@ type JsonpathListener interface {
 
 	// ExitPowerExpression is called when exiting the PowerExpression production.
 	ExitPowerExpression(c *PowerExpressionContext)
-
-	// ExitObjectLiteralExpression is called when exiting the ObjectLiteralExpression production.
-	ExitObjectLiteralExpression(c *ObjectLiteralExpressionContext)
 
 	// ExitInExpression is called when exiting the InExpression production.
 	ExitInExpression(c *InExpressionContext)
@@ -244,18 +220,6 @@ type JsonpathListener interface {
 
 	// ExitElementList is called when exiting the elementList production.
 	ExitElementList(c *ElementListContext)
-
-	// ExitObjectLiteral is called when exiting the objectLiteral production.
-	ExitObjectLiteral(c *ObjectLiteralContext)
-
-	// ExitPropertyExpressionAssignment is called when exiting the PropertyExpressionAssignment production.
-	ExitPropertyExpressionAssignment(c *PropertyExpressionAssignmentContext)
-
-	// ExitComputedPropertyExpressionAssignment is called when exiting the ComputedPropertyExpressionAssignment production.
-	ExitComputedPropertyExpressionAssignment(c *ComputedPropertyExpressionAssignmentContext)
-
-	// ExitPropertyName is called when exiting the propertyName production.
-	ExitPropertyName(c *PropertyNameContext)
 
 	// ExitLiteral is called when exiting the literal production.
 	ExitLiteral(c *LiteralContext)

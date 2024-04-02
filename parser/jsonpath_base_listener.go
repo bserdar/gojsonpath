@@ -51,12 +51,6 @@ func (s *BaseJsonpathListener) EnterIndexExpression(ctx *IndexExpressionContext)
 // ExitIndexExpression is called when production indexExpression is exited.
 func (s *BaseJsonpathListener) ExitIndexExpression(ctx *IndexExpressionContext) {}
 
-// EnterTernaryExpression is called when production TernaryExpression is entered.
-func (s *BaseJsonpathListener) EnterTernaryExpression(ctx *TernaryExpressionContext) {}
-
-// ExitTernaryExpression is called when production TernaryExpression is exited.
-func (s *BaseJsonpathListener) ExitTernaryExpression(ctx *TernaryExpressionContext) {}
-
 // EnterChainExpression is called when production ChainExpression is entered.
 func (s *BaseJsonpathListener) EnterChainExpression(ctx *ChainExpressionContext) {}
 
@@ -74,12 +68,6 @@ func (s *BaseJsonpathListener) EnterPowerExpression(ctx *PowerExpressionContext)
 
 // ExitPowerExpression is called when production PowerExpression is exited.
 func (s *BaseJsonpathListener) ExitPowerExpression(ctx *PowerExpressionContext) {}
-
-// EnterObjectLiteralExpression is called when production ObjectLiteralExpression is entered.
-func (s *BaseJsonpathListener) EnterObjectLiteralExpression(ctx *ObjectLiteralExpressionContext) {}
-
-// ExitObjectLiteralExpression is called when production ObjectLiteralExpression is exited.
-func (s *BaseJsonpathListener) ExitObjectLiteralExpression(ctx *ObjectLiteralExpressionContext) {}
 
 // EnterInExpression is called when production InExpression is entered.
 func (s *BaseJsonpathListener) EnterInExpression(ctx *InExpressionContext) {}
@@ -242,34 +230,6 @@ func (s *BaseJsonpathListener) EnterElementList(ctx *ElementListContext) {}
 
 // ExitElementList is called when production elementList is exited.
 func (s *BaseJsonpathListener) ExitElementList(ctx *ElementListContext) {}
-
-// EnterObjectLiteral is called when production objectLiteral is entered.
-func (s *BaseJsonpathListener) EnterObjectLiteral(ctx *ObjectLiteralContext) {}
-
-// ExitObjectLiteral is called when production objectLiteral is exited.
-func (s *BaseJsonpathListener) ExitObjectLiteral(ctx *ObjectLiteralContext) {}
-
-// EnterPropertyExpressionAssignment is called when production PropertyExpressionAssignment is entered.
-func (s *BaseJsonpathListener) EnterPropertyExpressionAssignment(ctx *PropertyExpressionAssignmentContext) {
-}
-
-// ExitPropertyExpressionAssignment is called when production PropertyExpressionAssignment is exited.
-func (s *BaseJsonpathListener) ExitPropertyExpressionAssignment(ctx *PropertyExpressionAssignmentContext) {
-}
-
-// EnterComputedPropertyExpressionAssignment is called when production ComputedPropertyExpressionAssignment is entered.
-func (s *BaseJsonpathListener) EnterComputedPropertyExpressionAssignment(ctx *ComputedPropertyExpressionAssignmentContext) {
-}
-
-// ExitComputedPropertyExpressionAssignment is called when production ComputedPropertyExpressionAssignment is exited.
-func (s *BaseJsonpathListener) ExitComputedPropertyExpressionAssignment(ctx *ComputedPropertyExpressionAssignmentContext) {
-}
-
-// EnterPropertyName is called when production propertyName is entered.
-func (s *BaseJsonpathListener) EnterPropertyName(ctx *PropertyNameContext) {}
-
-// ExitPropertyName is called when production propertyName is exited.
-func (s *BaseJsonpathListener) ExitPropertyName(ctx *PropertyNameContext) {}
 
 // EnterLiteral is called when production literal is entered.
 func (s *BaseJsonpathListener) EnterLiteral(ctx *LiteralContext) {}
