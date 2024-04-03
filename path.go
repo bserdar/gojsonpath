@@ -71,7 +71,7 @@ func IndexSelectorPath(index int) Path {
 
 type selector interface {
 	match(*context) bool
-	selectChildNodes(*context) (children []Segment, canSelect bool)
+	selectChildNodes(*context) (children iterator, canSelect bool)
 }
 
 // Finds all document elements addressed by the path
@@ -127,7 +127,9 @@ func evaluateAt(ctx *context, path Path, pathIx int, capture func(DocPath)) erro
 		// Can this selector select its children?
 		childNodeElements, canSelect := path.selectors[pathIx].selectChildNodes(ctx)
 		if canSelect {
-			for _, childNode := range childNodeElements {
+			for childNodeElements.next() {
+				var childNode Segment
+				childNodeElements.item(&childNode)
 				ctx.path = ctx.path.Push(childNode)
 				if err := evaluateAt(ctx, path, pathIx, capture); err != nil {
 					return err
@@ -216,7 +218,7 @@ func (rootElementSelector) match(ctx *context) bool {
 	return ctx.path.Last().Node == ctx.doc.Root()
 }
 
-func (rootElementSelector) selectChildNodes(*context) (children []Segment, canSelect bool) {
+func (rootElementSelector) selectChildNodes(*context) (children iterator, canSelect bool) {
 	return nil, false
 }
 
@@ -226,7 +228,7 @@ func (currentElementSelector) match(ctx *context) bool {
 	return ctx.path.Len() != 0
 }
 
-func (currentElementSelector) selectChildNodes(*context) (children []Segment, canSelect bool) {
+func (currentElementSelector) selectChildNodes(*context) (children iterator, canSelect bool) {
 	return nil, false
 }
 
@@ -243,14 +245,14 @@ func (sel *unionSelector) match(ctx *context) bool {
 	return false
 }
 
-func (sel *unionSelector) selectChildNodes(*context) (children []Segment, canSelect bool) {
+func (sel *unionSelector) selectChildNodes(*context) (children iterator, canSelect bool) {
 	return nil, false
 }
 
 type wildcardSelector struct{}
 
-func (wildcardSelector) match(*context) bool                         { return true }
-func (wildcardSelector) selectChildNodes(*context) ([]Segment, bool) { return nil, false }
+func (wildcardSelector) match(*context) bool                        { return true }
+func (wildcardSelector) selectChildNodes(*context) (iterator, bool) { return nil, false }
 
 type keySelector struct {
 	key  string
@@ -315,14 +317,14 @@ func (sel *keySelector) match(ctx *context) bool {
 	return false
 }
 
-func (sel *keySelector) selectChildNodes(ctx *context) ([]Segment, bool) {
+func (sel *keySelector) selectChildNodes(ctx *context) (iterator, bool) {
 	if isObject(ctx.path) {
 		node, ok := ctx.doc.Key(ctx.path.Last().Node, sel.key)
 		if !ok {
-			return nil, true
+			return emptyIterator{}, true
 		}
-		return []Segment{
-			{
+		return &singleIterator{
+			seg: Segment{
 				Node: node,
 				Type: ctx.doc.Type(node),
 				Name: sel.key,
@@ -334,14 +336,14 @@ func (sel *keySelector) selectChildNodes(ctx *context) ([]Segment, bool) {
 			n := ctx.doc.Len(ctx.path.Last().Node)
 			index := normalizeIndex(*v, n)
 			if index < 0 {
-				return nil, true
+				return emptyIterator{}, true
 			}
 			if index >= n {
-				return nil, true
+				return emptyIterator{}, true
 			}
 			node := ctx.doc.Elem(ctx.path.Last().Node, index)
-			return []Segment{
-				{
+			return &singleIterator{
+				seg: Segment{
 					Node:  node,
 					Type:  ctx.doc.Type(node),
 					Index: index,
@@ -364,6 +366,6 @@ func (sel *filterSelector) match(ctx *context) bool {
 	return v.asBool()
 }
 
-func (sel *filterSelector) selectChildNodes(*context) (children []Segment, canSelect bool) {
+func (sel *filterSelector) selectChildNodes(*context) (children iterator, canSelect bool) {
 	return nil, false
 }
