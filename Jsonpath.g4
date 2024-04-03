@@ -1,6 +1,15 @@
 grammar Jsonpath;
 
 path: expression (SP)? EOF ;
+
+simplePath: '/' simplePathExpr (SP)? EOF;
+
+simplePathExpr
+  : simplePathExpr (SP)? '/' (SP)? simplePathExpr
+  | literal                    
+  | identifier
+  | '*'
+  ;
   
 selector
   : '$'

@@ -27,6 +27,18 @@ func (s *BaseJsonpathListener) EnterPath(ctx *PathContext) {}
 // ExitPath is called when production path is exited.
 func (s *BaseJsonpathListener) ExitPath(ctx *PathContext) {}
 
+// EnterSimplePath is called when production simplePath is entered.
+func (s *BaseJsonpathListener) EnterSimplePath(ctx *SimplePathContext) {}
+
+// ExitSimplePath is called when production simplePath is exited.
+func (s *BaseJsonpathListener) ExitSimplePath(ctx *SimplePathContext) {}
+
+// EnterSimplePathExpr is called when production simplePathExpr is entered.
+func (s *BaseJsonpathListener) EnterSimplePathExpr(ctx *SimplePathExprContext) {}
+
+// ExitSimplePathExpr is called when production simplePathExpr is exited.
+func (s *BaseJsonpathListener) ExitSimplePathExpr(ctx *SimplePathExprContext) {}
+
 // EnterSelector is called when production selector is entered.
 func (s *BaseJsonpathListener) EnterSelector(ctx *SelectorContext) {}
 

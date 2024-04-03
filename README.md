@@ -8,6 +8,12 @@ This is a Go implementation of JSONPath introduced in:
 
 https://goessner.net/articles/JsonPath/
 
+as well as JSON path expressions of the form:
+
+```
+/key1/index/*/key2
+```
+
 with the following exceptions:
 
   * If a path component is a it should be a valid identifier or
@@ -26,6 +32,8 @@ with the following exceptions:
    * Decimals cannot start with a period, that is `.5` is
      invalid. Use `0.5` instead. Decimal starting with a period
      confuses the lexer.
+     
+   * Regular expressions are not supported yet.
 
 ## Using JSONPath
 
@@ -49,6 +57,15 @@ err := gojsonpath.Search(doc,path,func(elem []gojsonpath.Element) {
   result=append(result,elem[len(elem)-1].Node)
 })
 ```
+
+You can use the simple path parser to compile '/' separated paths:
+
+```
+path, err := gojsonpath.ParseSimplePath("/store/book/*/author")
+```
+
+Simple paths must start with '/', and may contain object keys, array
+indexes, or '*' to match anything, separated by '/'.
 
 ## Document model
 

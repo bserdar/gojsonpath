@@ -11,6 +11,12 @@ type JsonpathListener interface {
 	// EnterPath is called when entering the path production.
 	EnterPath(c *PathContext)
 
+	// EnterSimplePath is called when entering the simplePath production.
+	EnterSimplePath(c *SimplePathContext)
+
+	// EnterSimplePathExpr is called when entering the simplePathExpr production.
+	EnterSimplePathExpr(c *SimplePathExprContext)
+
 	// EnterSelector is called when entering the selector production.
 	EnterSelector(c *SelectorContext)
 
@@ -121,6 +127,12 @@ type JsonpathListener interface {
 
 	// ExitPath is called when exiting the path production.
 	ExitPath(c *PathContext)
+
+	// ExitSimplePath is called when exiting the simplePath production.
+	ExitSimplePath(c *SimplePathContext)
+
+	// ExitSimplePathExpr is called when exiting the simplePathExpr production.
+	ExitSimplePathExpr(c *SimplePathExprContext)
 
 	// ExitSelector is called when exiting the selector production.
 	ExitSelector(c *SelectorContext)
