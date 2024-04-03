@@ -13,7 +13,7 @@ import (
 
 type context struct {
 	doc  DocModel
-	path []Element
+	path DocPath
 }
 
 type expression interface {
@@ -224,8 +224,8 @@ type pathExpression struct {
 
 func (expr pathExpression) evaluate(ctx *context) (exprValue, error) {
 	result := make([]any, 0)
-	err := evaluateAt(ctx, expr.path, 0, func(item []Element) {
-		result = append(result, item[len(item)-1].Node)
+	err := evaluateAt(ctx, expr.path, 0, func(item DocPath) {
+		result = append(result, item.Last().Node)
 	})
 	if err != nil {
 		return exprValue{}, err

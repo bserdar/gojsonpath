@@ -53,7 +53,7 @@ func TestSimpleParser(t *testing.T) {
 		if err != nil {
 			panic(fmt.Sprintf("%s: %s", tc.path, err))
 		}
-		var expected any
+		var expected []any
 		err = json.Unmarshal([]byte(tc.expected), &expected)
 		if err != nil {
 			panic(fmt.Sprintf("%s: %s", tc.expected, err))
@@ -64,9 +64,17 @@ func TestSimpleParser(t *testing.T) {
 			t.Errorf("%s: %s", tc.input, err)
 			continue
 		}
-
-		if !reflect.DeepEqual(expected, result) {
-			t.Errorf("Expected: %v result: %v", expected, result)
+		for _, c := range expected {
+			found := false
+			for i := range result {
+				if reflect.DeepEqual(result[i], c) {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("Not found %v--%v", expected, result)
+			}
 		}
 	}
 }

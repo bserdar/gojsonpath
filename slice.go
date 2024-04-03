@@ -6,19 +6,19 @@ type indexSelector struct {
 }
 
 // Determines if last element of el is an array element
-func isArrayElement(el []Element) bool {
-	if len(el) < 2 {
+func isArrayElement(p DocPath) bool {
+	if p.Len() < 2 {
 		return false
 	}
-	return el[len(el)-2].Type == ArrayNode
+	return p.P[len(p.P)-2].Type == ArrayNode
 }
 
 // Determines if last element of el is an array
-func isArray(el []Element) bool {
-	if len(el) < 1 {
+func isArray(p DocPath) bool {
+	if p.Len() < 1 {
 		return false
 	}
-	return el[len(el)-1].Type == ArrayNode
+	return p.Last().Type == ArrayNode
 }
 
 func normalizeIndex(index any, len int) int {
@@ -48,20 +48,20 @@ func (sel *indexSelector) match(ctx *context) bool {
 		return false
 	}
 	if index < 0 {
-		n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
+		n := ctx.doc.Len(ctx.path.Last().Node)
 		index := normalizeIndex(index, n)
 		if index < 0 {
 			return false
 		}
 	}
-	return ctx.path[len(ctx.path)-1].Index == index
+	return ctx.path.Last().Index == index
 }
 
-func (sel *indexSelector) selectChildNodes(ctx *context) (children []Element, canSelect bool) {
+func (sel *indexSelector) selectChildNodes(ctx *context) (children []Segment, canSelect bool) {
 	if !isArray(ctx.path) {
 		return nil, true
 	}
-	n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
+	n := ctx.doc.Len(ctx.path.Last().Node)
 	ivalue, err := sel.index.evaluate(ctx)
 	if err != nil {
 		return nil, false
@@ -73,8 +73,8 @@ func (sel *indexSelector) selectChildNodes(ctx *context) (children []Element, ca
 	if index >= n {
 		return nil, true
 	}
-	node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, index)
-	return []Element{
+	node := ctx.doc.Elem(ctx.path.Last().Node, index)
+	return []Segment{
 		{
 			Node:  node,
 			Type:  ctx.doc.Type(node),
@@ -115,25 +115,25 @@ func (sel *rangeSelector) match(ctx *context) bool {
 	if !isArrayElement(ctx.path) {
 		return false
 	}
-	n := ctx.doc.Len(ctx.path[len(ctx.path)-2].Node)
+	n := ctx.doc.Len(ctx.path.P[len(ctx.path.P)-2].Node)
 	start, end := getRange(ctx, sel.start, sel.end, n)
-	index := ctx.path[len(ctx.path)-1].Index
+	index := ctx.path.Last().Index
 	return index >= start && index < end
 }
 
-func (sel *rangeSelector) selectChildNodes(ctx *context) (children []Element, canSelect bool) {
+func (sel *rangeSelector) selectChildNodes(ctx *context) (children []Segment, canSelect bool) {
 	if !isArray(ctx.path) {
 		return nil, true
 	}
-	n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
+	n := ctx.doc.Len(ctx.path.Last().Node)
 	start, end := getRange(ctx, sel.start, sel.end, n)
 	if start < 0 || start >= end {
 		return nil, true
 	}
-	ret := make([]Element, 0)
+	ret := make([]Segment, 0)
 	for i := start; i < end && i < n; i++ {
-		node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, i)
-		ret = append(ret, Element{
+		node := ctx.doc.Elem(ctx.path.Last().Node, i)
+		ret = append(ret, Segment{
 			Node:  node,
 			Type:  ctx.doc.Type(node),
 			Index: i,
@@ -152,12 +152,12 @@ func (sel *sliceSelector) match(ctx *context) bool {
 	if !isArrayElement(ctx.path) {
 		return false
 	}
-	n := ctx.doc.Len(ctx.path[len(ctx.path)-2].Node)
+	n := ctx.doc.Len(ctx.path.P[len(ctx.path.P)-2].Node)
 	start, end := getRange(ctx, sel.start, sel.end, n)
 	if start < 0 {
 		return false
 	}
-	index := ctx.path[len(ctx.path)-1].Index
+	index := ctx.path.Last().Index
 	if index < start || index >= end {
 		return false
 	}
@@ -193,11 +193,11 @@ func (sel *sliceSelector) match(ctx *context) bool {
 	return (start-index)%(-step) == 0
 }
 
-func (sel *sliceSelector) selectChildNodes(ctx *context) (children []Element, canSelect bool) {
+func (sel *sliceSelector) selectChildNodes(ctx *context) (children []Segment, canSelect bool) {
 	if !isArray(ctx.path) {
 		return nil, true
 	}
-	n := ctx.doc.Len(ctx.path[len(ctx.path)-1].Node)
+	n := ctx.doc.Len(ctx.path.Last().Node)
 	start, end := getRange(ctx, sel.start, sel.end, n)
 	if start < 0 {
 		return nil, true
@@ -222,15 +222,15 @@ func (sel *sliceSelector) selectChildNodes(ctx *context) (children []Element, ca
 	if step == 0 {
 		return nil, true
 	}
-	var ret []Element
+	var ret []Segment
 	if start < end {
 		if step < 0 {
 			return nil, true
 		}
-		ret = make([]Element, 0)
+		ret = make([]Segment, 0)
 		for i := start; i < end && i < n; i += step {
-			node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, i)
-			ret = append(ret, Element{
+			node := ctx.doc.Elem(ctx.path.Last().Node, i)
+			ret = append(ret, Segment{
 				Node:  node,
 				Type:  ctx.doc.Type(node),
 				Index: i,
@@ -244,10 +244,10 @@ func (sel *sliceSelector) selectChildNodes(ctx *context) (children []Element, ca
 	if start >= n {
 		return nil, true
 	}
-	ret = make([]Element, 0)
+	ret = make([]Segment, 0)
 	for i := start; i > end; i += step {
-		node := ctx.doc.Elem(ctx.path[len(ctx.path)-1].Node, i)
-		ret = append(ret, Element{
+		node := ctx.doc.Elem(ctx.path.Last().Node, i)
+		ret = append(ret, Segment{
 			Node:  node,
 			Type:  ctx.doc.Type(node),
 			Index: i,
