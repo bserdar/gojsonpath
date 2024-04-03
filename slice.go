@@ -130,17 +130,17 @@ func (sel *rangeSelector) selectChildNodes(ctx *context) (children iterator, can
 	if start < 0 || start >= end {
 		return emptyIterator{}, true
 	}
-	ret := make([]Segment, 0)
-	for i := start; i < end && i < n; i++ {
-		node := ctx.doc.Elem(ctx.path.Last().Node, i)
-		ret = append(ret, Segment{
-			Node:  node,
-			Type:  ctx.doc.Type(node),
-			Index: i,
-		})
+	if end > n {
+		end = n
 	}
-	return &sliceIterator{
-		items: ret,
+	return &rangeIterator{
+		doc:   ctx.doc,
+		node:  ctx.path.Last().Node,
+		from:  start,
+		to:    end,
+		step:  1,
+		at:    -1,
+		state: 0,
 	}, true
 }
 
@@ -224,22 +224,21 @@ func (sel *sliceSelector) selectChildNodes(ctx *context) (children iterator, can
 	if step == 0 {
 		return emptyIterator{}, true
 	}
-	var ret []Segment
 	if start < end {
 		if step < 0 {
 			return emptyIterator{}, true
 		}
-		ret = make([]Segment, 0)
-		for i := start; i < end && i < n; i += step {
-			node := ctx.doc.Elem(ctx.path.Last().Node, i)
-			ret = append(ret, Segment{
-				Node:  node,
-				Type:  ctx.doc.Type(node),
-				Index: i,
-			})
+
+		if end > n {
+			end = n
 		}
-		return &sliceIterator{
-			items: ret,
+		return &rangeIterator{
+			doc:   ctx.doc,
+			node:  ctx.path.Last().Node,
+			from:  start,
+			to:    end,
+			step:  step,
+			state: 0,
 		}, true
 	}
 	if step > 0 {
@@ -248,16 +247,13 @@ func (sel *sliceSelector) selectChildNodes(ctx *context) (children iterator, can
 	if start >= n {
 		return emptyIterator{}, true
 	}
-	ret = make([]Segment, 0)
-	for i := start; i > end; i += step {
-		node := ctx.doc.Elem(ctx.path.Last().Node, i)
-		ret = append(ret, Segment{
-			Node:  node,
-			Type:  ctx.doc.Type(node),
-			Index: i,
-		})
-	}
-	return &sliceIterator{
-		items: ret,
+
+	return &rangeIterator{
+		doc:   ctx.doc,
+		node:  ctx.path.Last().Node,
+		from:  start,
+		to:    end,
+		step:  step,
+		state: 0,
 	}, true
 }

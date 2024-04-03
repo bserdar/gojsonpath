@@ -49,7 +49,7 @@ func TestSimpleParser(t *testing.T) {
 			panic(fmt.Sprintf("%s: %s", tc.input, err))
 		}
 
-		path, err := ParseSimplePath(tc.path)
+		path, err := Parse(tc.path)
 		if err != nil {
 			panic(fmt.Sprintf("%s: %s", tc.path, err))
 		}

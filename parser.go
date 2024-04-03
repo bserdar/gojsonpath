@@ -32,6 +32,10 @@ func (lst *errorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymb
 //
 //	https://goessner.net/articles/JsonPath/
 //
+//  as well as simple paths of the form
+//
+//     / key1 / key2 / index / * / key3
+//
 // with a few exceptions:
 //
 //   - If a path component is a it should be a valid identifier or
@@ -50,15 +54,30 @@ func (lst *errorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymb
 //   - Decimals cannot start with a period, that is `.5` is
 //     invalid. Use `0.5` instead. Decimal starting with a period
 //     confuses the lexer.
+//
+// For a simple path that uses '/', keys and indexes address object
+// keys and array indexes, and * addresses any matching node. This
+// form does not support recursive descent. The path must be an
+// absolute path (i.e. start with '/'.)  Keys can be given as is, or
+// as string literals (i.e. quoted.)
+
 func Parse(input string) (Path, error) {
 	pr := getParser(input)
 	pr.RemoveErrorListeners()
 	errListener := errorListener{}
 	pr.AddErrorListener(&errListener)
-	c := pr.Path()
 	if errListener.err != nil {
 		return Path{}, fmt.Errorf("%w, input: %s", errListener.err, input)
 	}
+	if len(input) > 0 && input[0] == '/' {
+		p, err := astSimplePath(pr.SimplePath().(*parser.SimplePathContext).SimplePathExpr())
+		if err != nil {
+			return p, err
+		}
+		return Append(SelectRootPath, p), nil
+	}
+
+	c := pr.Path()
 	// Build a matcher from AST
 	return astPath(c.Expression())
 }

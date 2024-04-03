@@ -61,7 +61,7 @@ err := gojsonpath.Search(doc,path,func(elem []gojsonpath.Element) {
 You can use the simple path parser to compile '/' separated paths:
 
 ```
-path, err := gojsonpath.ParseSimplePath("/store/book/*/author")
+path, err := gojsonpath.Parse("/store/book/*/author")
 ```
 
 Simple paths must start with '/', and may contain object keys, array

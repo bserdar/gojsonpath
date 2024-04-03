@@ -1,36 +1,10 @@
 package gojsonpath
 
 import (
-	"fmt"
 	"github.com/antlr4-go/antlr/v4"
 
 	"github.com/bserdar/gojsonpath/parser"
 )
-
-// ParseSimplePath creates a compiled JSON path from a simplified
-// path expression of the form
-//
-//	/ key1 / key2 / index / * / key3
-//
-// where keys and indexes address object keys and array indexes, and *
-// addresses any matching node. This form does not support recursive
-// descent. The path must be an absolute path (i.e. start with '/'.)
-// Keys can be given as is, or as string literals (i.e. quoted.)
-func ParseSimplePath(input string) (Path, error) {
-	pr := getParser(input)
-	pr.RemoveErrorListeners()
-	errListener := errorListener{}
-	pr.AddErrorListener(&errListener)
-	if errListener.err != nil {
-		return Path{}, fmt.Errorf("%w, input: %s", errListener.err, input)
-	}
-	// Build a matcher
-	p, err := astSimplePath(pr.SimplePath().(*parser.SimplePathContext).SimplePathExpr())
-	if err != nil {
-		return p, err
-	}
-	return Append(SelectRootPath, p), nil
-}
 
 func astSimplePath(ctx parser.ISimplePathExprContext) (path Path, err error) {
 	if lit := ctx.Literal(); lit != nil {
