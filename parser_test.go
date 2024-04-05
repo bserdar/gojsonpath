@@ -40,3 +40,19 @@ func TestParser(t *testing.T) {
 		}
 	}
 }
+
+func TestMakeKey(t *testing.T) {
+	testCases := [][2]string{
+		{`abc`, `abc`},
+		{`1abc`, `"1abc"`},
+		{`a-bc`, `"a-bc"`},
+		{`a"bc`, `'a"bc'`},
+		{`a"'bc`, `"a\"'bc"`},
+	}
+
+	for _, x := range testCases {
+		if y := MakeKeyString(x[0]); y != x[1] {
+			t.Errorf("Input: %s, expected: %s, output: %s", x[0], x[1], y)
+		}
+	}
+}

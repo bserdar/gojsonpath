@@ -83,6 +83,15 @@ func Find(doc DocModel, path Path) ([]any, error) {
 	return results, err
 }
 
+// ParseAndFind parses the path and finds matching nodes in the doc
+func ParseAndFind(doc DocModel, path string) ([]any, error) {
+	p, err := Parse(path)
+	if err != nil {
+		return nil, err
+	}
+	return Find(doc, p)
+}
+
 // Search iterates all document nodes depth-first, and calls `capture`
 // for those document nodes that `path` matches.
 func Search(doc DocModel, path Path, capture func(DocPath)) error {
