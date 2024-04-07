@@ -23,6 +23,8 @@ type DocModel interface {
 	Keys(any) []string
 	// Lookup and item in an array node
 	Elem(any, int) any
+	// The input is a value node. Return the value of that node
+	Value(any) any
 }
 
 // map[string]any model
@@ -32,7 +34,7 @@ type MapModel struct {
 
 func (m MapModel) Root() any { return m.Doc }
 
-func (m MapModel) Type(in any) NodeType {
+func (MapModel) Type(in any) NodeType {
 	if _, ok := in.(map[string]any); ok {
 		return ObjectNode
 	}
@@ -42,7 +44,7 @@ func (m MapModel) Type(in any) NodeType {
 	return ValueNode
 }
 
-func (m MapModel) Len(in any) int {
+func (MapModel) Len(in any) int {
 	if arr, ok := in.([]any); ok {
 		return len(arr)
 	}
@@ -55,7 +57,7 @@ func (m MapModel) Len(in any) int {
 	return 1
 }
 
-func (m MapModel) Key(in any, key string) (any, bool) {
+func (MapModel) Key(in any, key string) (any, bool) {
 	obj, ok := in.(map[string]any)
 	if !ok {
 		return nil, false
@@ -63,7 +65,7 @@ func (m MapModel) Key(in any, key string) (any, bool) {
 	return obj[key], true
 }
 
-func (m MapModel) Keys(in any) []string {
+func (MapModel) Keys(in any) []string {
 	obj, ok := in.(map[string]any)
 	if !ok {
 		return nil
@@ -75,10 +77,12 @@ func (m MapModel) Keys(in any) []string {
 	return out
 }
 
-func (m MapModel) Elem(in any, index int) any {
+func (MapModel) Elem(in any, index int) any {
 	arr, ok := in.([]any)
 	if !ok {
 		return nil
 	}
 	return arr[index]
 }
+
+func (MapModel) Value(in any) any { return in }

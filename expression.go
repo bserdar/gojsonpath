@@ -25,6 +25,13 @@ type exprValue struct {
 	value any
 }
 
+// If the expression value is a node, then we keep the nodeValue as
+// its value
+type nodeValue struct {
+	node any
+	doc  DocModel
+}
+
 func (c exprValue) evaluate(*context) (exprValue, error) { return c, nil }
 
 // Return an int, float, bool, or string as int or float64. If not convertable, returns nil
@@ -52,6 +59,9 @@ func valueAsNumber(value any) any {
 			return f
 		}
 	}
+	if n, ok := value.(nodeValue); ok {
+		return valueAsNumber(n.doc.Value(n.node))
+	}
 	return nil
 }
 
@@ -68,27 +78,37 @@ func valueAsInt(value any) (int, bool) {
 }
 
 func (c exprValue) String() string {
-	s, ok := c.value.(string)
+	v := c.getValue()
+	s, ok := v.(string)
 	if ok {
 		return s
 	}
-	return fmt.Sprint(c.value)
+	return fmt.Sprint(v)
 }
 
 func (c exprValue) asBool() bool {
-	if b, ok := c.value.(bool); ok {
+	value := c.getValue()
+	if b, ok := value.(bool); ok {
 		return b
 	}
-	if i, ok := c.value.(int); ok {
+	if i, ok := value.(int); ok {
 		return i != 0
 	}
-	if f, ok := c.value.(float64); ok {
+	if f, ok := value.(float64); ok {
 		return f != 0
 	}
-	if s, ok := c.value.(string); ok {
+	if s, ok := value.(string); ok {
 		return len(s) != 0
 	}
 	return c.value != nil
+}
+
+func (c exprValue) getValue() any {
+	n, ok := c.value.(nodeValue)
+	if ok {
+		return n.doc.Value(n.node)
+	}
+	return c.value
 }
 
 type unaryMinusExpression struct {
@@ -104,10 +124,10 @@ func (u unaryMinusExpression) evaluate(ctx *context) (exprValue, error) {
 	if num == nil {
 		return exprValue{}, nil
 	}
-	if ivalue, ok := c.value.(int); ok {
+	if ivalue, ok := num.(int); ok {
 		return exprValue{value: -ivalue}, nil
 	}
-	if fvalue, ok := c.value.(float64); ok {
+	if fvalue, ok := num.(float64); ok {
 		return exprValue{value: -fvalue}, nil
 	}
 	return exprValue{}, nil
@@ -151,30 +171,33 @@ func (expr equalityExpression) evaluate(ctx *context) (exprValue, error) {
 	if err != nil {
 		return exprValue{}, err
 	}
-	if i, ok := left.value.(int); ok {
-		if j, ok := right.value.(int); ok {
+	leftValue := left.getValue()
+	rightValue := right.getValue()
+
+	if i, ok := leftValue.(int); ok {
+		if j, ok := rightValue.(int); ok {
 			return exprValue{value: i == j}, nil
 		}
-		if f, ok := right.value.(float64); ok {
+		if f, ok := rightValue.(float64); ok {
 			return exprValue{value: i == int(f)}, nil
 		}
 		return exprValue{value: false}, nil
 	}
-	if i, ok := left.value.(float64); ok {
-		if j, ok := right.value.(float64); ok {
+	if i, ok := leftValue.(float64); ok {
+		if j, ok := rightValue.(float64); ok {
 			return exprValue{value: i == j}, nil
 		}
-		if j, ok := right.value.(int); ok {
+		if j, ok := rightValue.(int); ok {
 			return exprValue{value: i == float64(j)}, nil
 		}
 	}
-	if l, ok := left.value.(string); ok {
-		if r, ok := right.value.(string); ok {
+	if l, ok := leftValue.(string); ok {
+		if r, ok := rightValue.(string); ok {
 			return exprValue{value: l == r}, nil
 		}
 	}
-	if b, ok := left.value.(bool); ok {
-		if r, ok := right.value.(bool); ok {
+	if b, ok := leftValue.(bool); ok {
+		if r, ok := rightValue.(bool); ok {
 			return exprValue{value: b == r}, nil
 		}
 	}
@@ -195,24 +218,26 @@ func (expr equality3Expression) evaluate(ctx *context) (exprValue, error) {
 	if err != nil {
 		return exprValue{}, err
 	}
-	if i, ok := left.value.(int); ok {
-		if j, ok := right.value.(int); ok {
+	leftValue := left.getValue()
+	rightValue := right.getValue()
+	if i, ok := leftValue.(int); ok {
+		if j, ok := rightValue.(int); ok {
 			return exprValue{value: i == j}, nil
 		}
 		return exprValue{value: false}, nil
 	}
-	if i, ok := left.value.(float64); ok {
-		if j, ok := right.value.(float64); ok {
+	if i, ok := leftValue.(float64); ok {
+		if j, ok := rightValue.(float64); ok {
 			return exprValue{value: i == j}, nil
 		}
 	}
-	if l, ok := left.value.(string); ok {
-		if r, ok := right.value.(string); ok {
+	if l, ok := leftValue.(string); ok {
+		if r, ok := rightValue.(string); ok {
 			return exprValue{value: l == r}, nil
 		}
 	}
-	if b, ok := left.value.(bool); ok {
-		if r, ok := right.value.(bool); ok {
+	if b, ok := leftValue.(bool); ok {
+		if r, ok := rightValue.(bool); ok {
 			return exprValue{value: b == r}, nil
 		}
 	}
@@ -232,7 +257,16 @@ func (expr pathExpression) evaluate(ctx *context) (exprValue, error) {
 		return exprValue{}, err
 	}
 	if len(result) == 1 {
-		return exprValue{value: result[0]}, nil
+		return exprValue{value: nodeValue{
+			node: result[0],
+			doc:  ctx.doc,
+		}}, nil
+	}
+	for i := range result {
+		result[i] = nodeValue{
+			node: result[i],
+			doc:  ctx.doc,
+		}
 	}
 	return exprValue{value: result}, nil
 }
@@ -285,19 +319,21 @@ func compareExpr(ctx *context, left, right expression) (int, bool, error) {
 	if err != nil {
 		return 0, false, err
 	}
+	lvalue := l.getValue()
+	rvalue := r.getValue()
 
-	if l.value == nil && r.value == nil {
+	if lvalue == nil && rvalue == nil {
 		return 0, true, nil
 	}
-	if l.value == nil && r.value != nil {
+	if lvalue == nil && rvalue != nil {
 		return -1, true, nil
 	}
-	if l.value != nil && r.value == nil {
+	if lvalue != nil && rvalue == nil {
 		return 1, true, nil
 	}
 
-	if i, ok := l.value.(int); ok {
-		j, ok := valueAsInt(r.value)
+	if i, ok := lvalue.(int); ok {
+		j, ok := valueAsInt(rvalue)
 		if !ok {
 			return 0, false, nil
 		}
@@ -310,8 +346,8 @@ func compareExpr(ctx *context, left, right expression) (int, bool, error) {
 		return 0, true, nil
 	}
 
-	if i, ok := l.value.(float64); ok {
-		n := valueAsNumber(r.value)
+	if i, ok := lvalue.(float64); ok {
+		n := valueAsNumber(rvalue)
 		if n == nil {
 			return 0, false, nil
 		}
@@ -330,10 +366,10 @@ func compareExpr(ctx *context, left, right expression) (int, bool, error) {
 		return 0, true, nil
 	}
 
-	if i, ok := l.value.(string); ok {
-		j, ok := r.value.(string)
+	if i, ok := lvalue.(string); ok {
+		j, ok := rvalue.(string)
 		if !ok {
-			j = fmt.Sprint(r.value)
+			j = fmt.Sprint(rvalue)
 		}
 		if i < j {
 			return -1, true, nil
@@ -585,7 +621,7 @@ func (expr arrayExpression) evaluate(ctx *context) (exprValue, error) {
 		if err != nil {
 			return exprValue{}, err
 		}
-		ret = append(ret, v.value)
+		ret = append(ret, v.getValue())
 	}
 	return exprValue{value: ret}, nil
 }
@@ -612,7 +648,13 @@ func (expr inExpression) evaluate(ctx *context) (exprValue, error) {
 		arr = []any{r.value}
 	}
 	for _, x := range arr {
-		if l == x {
+		var v any
+		if n, ok := x.(nodeValue); ok {
+			v = n.doc.Value(n.node)
+		} else {
+			v = x
+		}
+		if l == v {
 			return exprValue{value: true}, nil
 		}
 	}
@@ -651,13 +693,13 @@ func (expr methodCallExpression) evaluate(ctx *context) (exprValue, error) {
 		return exprValue{}, fmt.Errorf("Function not found: %s", expr.name)
 	}
 	args := make([]any, 0, len(expr.args)+1)
-	args = append(args, receiver.value)
+	args = append(args, receiver.getValue())
 	for _, x := range expr.args {
 		e, err := x.evaluate(ctx)
 		if err != nil {
 			return exprValue{}, err
 		}
-		args = append(args, e.value)
+		args = append(args, e.getValue())
 	}
 	val, err := funcCall(args)
 	if err != nil {
@@ -672,7 +714,23 @@ type functionCallExpression struct {
 }
 
 func (expr functionCallExpression) evaluate(ctx *context) (exprValue, error) {
-	return exprValue{}, nil
+	funcCall := predefinedFunctions[expr.name]
+	if funcCall == nil {
+		return exprValue{}, fmt.Errorf("Function not found: %s", expr.name)
+	}
+	args := make([]any, 0, len(expr.args))
+	for _, x := range expr.args {
+		e, err := x.evaluate(ctx)
+		if err != nil {
+			return exprValue{}, err
+		}
+		args = append(args, e.getValue())
+	}
+	val, err := funcCall(args)
+	if err != nil {
+		return exprValue{}, err
+	}
+	return exprValue{value: val}, nil
 }
 
 // inPath tells if we are parsing a path. If we are parsing a path
