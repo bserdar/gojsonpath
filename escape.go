@@ -5,6 +5,8 @@ import (
 	"unicode"
 )
 
+const acceptableChars = "_*$.,@!~#%^"
+
 // MakeKeyString quotes or escapes the input string if necessary to be
 // used in a path expression
 func MakeKeyString(input string) string {
@@ -16,7 +18,7 @@ func MakeKeyString(input string) string {
 			bad = true
 			break
 		}
-		if !unicode.IsDigit(r) && !unicode.IsLetter(r) && r != '_' {
+		if !unicode.IsDigit(r) && !unicode.IsLetter(r) && strings.IndexRune(acceptableChars, r) == -1 {
 			bad = true
 			break
 		}
